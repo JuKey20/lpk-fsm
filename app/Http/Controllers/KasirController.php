@@ -188,7 +188,7 @@ class KasirController extends Controller
             $member = Member::all();
         } else {
             $barang = DetailToko::where('id_toko', $user->id_toko)->get();
-            $member = Member::where('id_toko', $user->id_toko)->get();
+            $member = Member::all();
         }
 
         return view('transaksi.kasir.index', compact('menu', 'barang', 'kasir', 'member', 'detail_kasir', 'users', 'toko'));
@@ -263,20 +263,33 @@ class KasirController extends Controller
                 return response()->json(['error' => 'Member tidak ditemukan.'], 404);
             }
 
-            // 7. Parsing level_info dari tabel Member (format JSON jika string)
-            $levelInfo = is_string($member->level_info) ? json_decode($member->level_info, true) : $member->level_info;
-            $jenisBarangId = $barang->id_jenis_barang;
+            $levelInfo = is_string($member->level_info ?? null) ? json_decode($member->level_info, true) : ($member->level_info ?? null);
+            if (empty($levelInfo)) {
+                $filteredHarga = collect($levelHarga)
+                    ->sortByDesc(fn($harga) => (int) explode(' : ', $harga)[1])
+                    ->values()
+                    ->map(fn($harga) => intval(explode(' : ', $harga)[1]));
 
-            // 8. Ambil ID level yang cocok dengan jenis barang dari level_info
+                return response()->json([
+                    'filteredHarga' => $filteredHarga,
+                    'id_barang' => $barangId,
+                    'nama_barang' => $barang->nama_barang,
+                    'stock' => $stock,
+                ]);
+            }
+
+            $jenisBarangId = $barang->id_jenis_barang;
             $levelIds = collect($levelInfo)->map(function ($info) use ($jenisBarangId) {
-                list($infoJenisBarangId, $infoLevelId) = explode(' : ', $info);
+                $parts = explode(' : ', $info);
+                if (count($parts) !== 2) {
+                    return null;
+                }
+                $infoJenisBarangId = $parts[0];
+                $infoLevelId = $parts[1];
                 return intval($infoJenisBarangId) === intval($jenisBarangId) ? intval($infoLevelId) : null;
             })->filter();
 
-            // 9. Ambil nama level harga yang sesuai dari tabel LevelHarga
             $levelNames = LevelHarga::whereIn('id', $levelIds)->pluck('nama_level_harga');
-
-            // 10. Filter level harga barang sesuai dengan levelNames
             $filteredHarga = collect($levelHarga)->filter(function ($harga) use ($levelNames) {
                 return $levelNames->contains(fn($levelName) => str_contains($harga, $levelName));
             })->map(fn($harga) => intval(explode(' : ', $harga)[1]))->values();

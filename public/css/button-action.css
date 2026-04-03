@@ -99,3 +99,27 @@
 .action_button:active {
     opacity: 1;
 }
+
+.action_button.action_button--icon {
+    width: 34px;
+    height: 34px;
+    line-height: 34px;
+    border-radius: 6px;
+}
+
+.action_button.action_button--icon span {
+    display: none;
+}
+
+.action_button.action_button--icon .icon {
+    width: 100%;
+    right: 0;
+}
+
+.action_button.action_button--icon .icon .fa {
+    font-size: 16px;
+}
+
+.action_button.action_button--icon:hover .icon .fa {
+    font-size: 18px;
+}

@@ -27,21 +27,6 @@
                                     @method('put')
                                     @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
                                         <div class="form-group">
-                                            <label for="id_toko" class="form-control-label">Nama Toko <span
-                                                    style="color: red">*</span></label>
-                                            <select name="id_toko" id="selector" class="form-control select2"
-                                                tabindex="1">
-                                                <option value="">~Pilih~</option>
-                                                @foreach ($toko as $tk)
-                                                    <option value="{{ $tk->id }}"
-                                                        {{ $user->id_toko == $tk->id ? 'selected' : '' }}>
-                                                        {{ $tk->nama_toko }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-
-                                        <div class="form-group">
                                             <label for="id_level" class="form-control-label">Level <span
                                                     style="color: red">*</span></label>
                                             <select name="id_level" id="selectors" class="form-control select2"
@@ -56,7 +41,6 @@
                                             </select>
                                         </div>
                                     @else
-                                        <input type="hidden" name="id_toko" value="{{ $user->id_toko }}">
                                         <input type="hidden" name="id_level" value="{{ $user->id_level }}">
                                     @endif
 
@@ -128,10 +112,6 @@
 @section('js')
     <script>
         let selectOptions = [{
-            id: '#selector',
-            isUrl: '{{ route('master.toko') }}',
-            placeholder: 'Pilih Nama Toko',
-        }, {
             id: '#selectors',
             isUrl: '{{ route('master.levelUser') }}',
             placeholder: 'Pilih Level User',

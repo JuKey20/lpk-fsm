@@ -167,8 +167,7 @@
                                             <tr class="tb-head">
                                                 <th class="text-center text-wrap align-top">No</th>
                                                 <th class="text-wrap align-top">Nama User</th>
-                                                <th class="text-wrap align-top">Level</th>
-                                                <th class="text-wrap align-top">Toko</th>
+                                                <th class="text-wrap align-top">Peran</th>
                                                 <th class="text-wrap align-top">Username</th>
                                                 <th class="text-wrap align-top">Email</th>
                                                 <th class="text-wrap align-top">No. HP</th>
@@ -228,7 +227,6 @@
                     limit: limit,
                     ascending: ascending,
                     search: search,
-                    id_toko: '{{ auth()->user()->id_toko }}',
                     ...filterParams
                 }
             ).then(function(response) {
@@ -294,7 +292,6 @@
                 id: data?.id ?? '-',
                 nama: data?.nama ?? '-',
                 nama_level: data?.nama_level ?? '-',
-                nama_toko: data?.nama_toko ?? '-',
                 username: data?.username ?? '-',
                 email: data?.email ?? '-',
                 no_hp: data?.no_hp ?? '-',
@@ -318,7 +315,6 @@
                         <td class="${classCol} text-center">${display_from + index}.</td>
                         <td class="${classCol}">${element.nama}</td>
                         <td class="${classCol}">${element.nama_level}</td>
-                        <td class="${classCol}">${element.nama_toko}</td>
                         <td class="${classCol}">${element.username}</td>
                         <td class="${classCol}">${element.email}</td>
                         <td class="${classCol}">${element.no_hp}</td>

@@ -10,7 +10,6 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id('id');
-            $table->string('id_toko');
             $table->string('id_level');
             $table->string('nama');
             $table->string('username');

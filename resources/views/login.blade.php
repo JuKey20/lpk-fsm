@@ -6,9 +6,9 @@
     <meta name="viewport"
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <meta name="author" content="GSS">
+    <meta name="author" content="LPK Fuji Sukses Mandiri">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Login | {{ env('APP_NAME') ?? 'GSS' }}</title>
+    <title>Login | LPK Fuji Sukses Mandiri</title>
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('images/logo/logo.png') }}">
     <link rel="stylesheet" href="{{ asset('css/login/slick.css') }}" />
     <link rel="stylesheet" href="{{ asset('css/login/aos.css') }}" />
@@ -118,17 +118,17 @@
 
     <section class="bg-white dark:bg-darkblack-500">
         <div class="flex flex-col lg:flex-row justify-between min-h-screen">
-            <div class="lg:w-1/2 px-5 xl:pl-12 pt-10">
-                <div class="max-w-[450px] m-auto pt-24 pb-16">
-                    <header class="text-center mb-8">
+            <div class="lg:w-1/2 px-5 xl:pl-12 py-4 flex items-center justify-center">
+                <div class="w-full max-w-[480px] py-8 lg:py-0">
+                    <header class="text-center mb-6">
                         <center>
-                            <img src="{{ asset('images/logo/logo-slogan.png') }}" class="block dark:hidden"
-                                style="width: 90%" />
-                            <img src="{{ asset('images/logo/logo-slogan.png') }}" class="hidden dark:block"
-                                style="width: 90%" />
+                            <img src="{{ asset('images/logo/lpk-logo.png') }}" class="block dark:hidden"
+                                style="width: 100%; max-width: 380px;" />
+                            <img src="{{ asset('images/logo/lpk-logo.png') }}" class="hidden dark:block"
+                                style="width: 100%; max-width: 380px;" />
                         </center>
                         <p class="font-urbanis text-base font-medium text-bgray-600 pt-2 dark:text-bgray-50">
-                            <b>MASUK KE APLIKASI {{ env('APP_NAME') ?? 'GSS' }}</b>
+                            <b>MASUK KE APLIKASI</b>
                         </p>
                         @if ($errors->any())
                             @foreach ($errors->all() as $error)
@@ -137,16 +137,16 @@
                         @endif
                     </header>
 
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <input type="text" id="username" autocomplete="off"
                             class="text-bgray-800 text-base border border-bgray-300 dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white h-14 w-full focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base"
                             placeholder="Username" />
                     </div>
-                    <div class="mb-6 relative">
+                    <div class="mb-4 relative">
                         <input type="password" id="password"
                             class="text-bgray-800 text-base border border-bgray-300 dark:border-darkblack-400 dark:bg-darkblack-500 dark:text-white h-14 w-full focus:border-success-300 focus:ring-0 rounded-lg px-4 py-3.5 placeholder:text-bgray-500 placeholder:text-base"
                             placeholder="Kata sandi" />
-                        <button type="button" id="togglePassword" class="absolute top-4 right-4 bottom-4">
+                        <button type="button" id="togglePassword" class="absolute inset-y-0 right-4 flex items-center">
                             <svg id="eyeIcon" width="22" height="20" viewBox="0 0 22 20" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path d="M2 1L20 19" stroke="#718096" stroke-width="1.5" stroke-linecap="round"
@@ -162,55 +162,19 @@
                             </svg>
                         </button>
                     </div>
-                    {{-- <div class="flex justify-between mb-7">
-                        <div class="flex items-center space-x-3">
-                            <input type="checkbox"
-                                class="w-5 h-5 dark:bg-darkblack-500 focus:ring-transparent rounded-full border border-bgray-300 focus:accent-success-300 text-success-300"
-                                name="remember" id="remember" />
-                            <label for="remember" class="text-bgray-900 dark:text-white text-base font-semibold">Ingat
-                                saya</label>
-                        </div>
-                        <div>
-                            <a href="#" data-target="#multi-step-modal" style="color: rgb(33 70 156);"
-                                class="modal-open text-success-300 font-semibold text-base underline">Lupa kata
-                                sandi?</a>
-                        </div>
-                    </div> --}}
+                    
                     <button type="button" onclick="submitLogin()" style="background-color: rgb(33 70 156);"
-                        class="py-3.5 flex items-center justify-center text-white font-bold bg-success-300 hover:bg-success-400 transition-all rounded-lg w-full">
+                        class="py-3.5 flex items-center justify-center text-white font-bold bg-success-300 hover:bg-success-400 transition-all rounded-lg w-full text-base">
                         Masuk
                     </button>
-                    <p class="text-bgray-600 dark:text-white text-center text-sm mt-6">
-                        &copy; {{ now()->year }} {{ env('APP_NAME') ?? 'GSS' }}<br>All Right Reserved
+                    <p class="text-bgray-600 dark:text-white text-center text-sm mt-4">
+                        &copy; {{ now()->year }} Fuji Sukses Mandiri<br>All Right Reserved
                     </p>
                 </div>
             </div>
-            <div class="lg:w-1/2 lg:block hidden bg-[#F6FAFF] dark:bg-darkblack-600 p-20 relative">
-                <ul>
-                    <li class="absolute top-10 left-8">
-                        <img src="{{ asset('images/shapes/vline.svg') }}" alt="" />
-                    </li>
-                    <li class="absolute right-12 top-14">
-                        <img src="{{ asset('images/shapes/square.svg') }}" alt="" />
-                    </li>
-                    <li class="absolute bottom-7 left-8">
-                        <img src="{{ asset('images/shapes/dotted.svg') }}" alt="" />
-                    </li>
-                </ul>
-                <div>
-                    <img src="{{ asset('images/shapes/login.svg') }}" />
-                </div>
-                <div>
-                    <div class="text-center max-w-lg px-1.5 m-auto">
-                        <h3 class="text-bgray-900 dark:text-white font-semibold font-popins text-4xl mb-4">
-                            Transaksi, Pengiriman dan Penjualan
-                        </h3>
-                        <p class="text-bgray-600 dark:text-bgray-50 text-sm font-medium">
-                            Aplikasi yang dibangun untuk mencatat transaksi, melakukan pengiriman dan penjualan, serta
-                            menyajikan laporan pendapatan yang terperinci.
-                        </p>
-                    </div>
-                </div>
+            <div class="lg:w-1/2 lg:block hidden bg-[#F6FAFF] dark:bg-darkblack-600 relative overflow-hidden">
+                <img src="{{ asset('images/logo/banner.jpg') }}" class="absolute inset-0 w-full h-full object-cover object-right" alt="Banner" />
+                <div class="absolute inset-0 pointer-events-none" style="background: rgba(0, 0, 0, 0.3);"></div>
             </div>
         </div>
     </section>

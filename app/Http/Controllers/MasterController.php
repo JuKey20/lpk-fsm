@@ -376,14 +376,7 @@ class MasterController extends Controller
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
-
-        $id_toko = $request->id_toko;
-
-        if ($id_toko == 1) {
-            $query = Member::query();
-        } else {
-            $query = Member::where('id_toko', $id_toko);
-        }
+        $query = Member::query();
 
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
@@ -715,12 +708,9 @@ class MasterController extends Controller
         } else {
             // Ambil id_toko dari user yang sedang login
             $userTokoId = User::where('id', $userId)->value('id_toko');
-
-            // Ambil semua member yang memiliki id_toko yang sama
-            $memberIds = Member::where('id_toko', $userTokoId)->pluck('id');
-
-            // Tampilkan kasbon yang sesuai dengan member dari toko tersebut
-            $query = Kasbon::with('member')->whereIn('id_member', $memberIds);
+            $query = Kasbon::with('member')->whereHas('kasir', function ($q) use ($userTokoId) {
+                $q->where('id_toko', $userTokoId);
+            });
         }
 
         if (!empty($request['search'])) {
@@ -785,7 +775,9 @@ class MasterController extends Controller
 
         $query = LevelUser::query();
 
-        if ($request['id_level'] == 3) {
+        $query->where('id', '!=', 1);
+
+        if ($request->input('id_level') == 3) {
             $query->where('id', 4);
         }
 

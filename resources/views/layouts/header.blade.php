@@ -9,7 +9,7 @@
                     @if (auth()->user()->id_level == 1)
                         Super Admin
                     @else
-                        {{ Auth::user()->toko->singkatan }}
+                        LPK Fuji Sukses Mandiri
                     @endif
                 </b>
             </a>
@@ -33,7 +33,7 @@
                         <div class="dropdown-menu dropdown-menu-right profile-notification">
                             <div class="pro-head">
                                 @if (Auth::check())
-                                    <h5 style="color: white">{{ Auth::user()->toko->singkatan }}</h5>
+                                    <h5 style="color: white">LPK Fuji Sukses Mandiri</h5>
                                     <p style="color: white">{{ Auth::user()->leveluser->nama_level }}</p>
                                 @endif
                             </div>

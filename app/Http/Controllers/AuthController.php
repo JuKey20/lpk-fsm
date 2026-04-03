@@ -32,7 +32,7 @@ class AuthController extends Controller
             $request->session()->regenerate();
             $user = Auth::user();
 
-            $user->update([
+            User::where('id', $user->id)->update([
                 'ip_login' => $request->ip(),
                 'last_activity' => Carbon::now(),
             ]);
@@ -120,7 +120,7 @@ class AuthController extends Controller
             $member = Member::all();
         } else {
             $barang = DetailToko::where('id_toko', $idToko)->get();
-            $member = Member::where('id_toko', $idToko)->get();
+            $member = Member::all();
         }
 
         // Hitung total nilai berdasarkan id_toko atau semua jika id_toko login = 1

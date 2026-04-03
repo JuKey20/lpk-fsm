@@ -36,11 +36,6 @@ class User extends Authenticatable
         return $this->belongsTo(LevelUser::class, 'id_level');
     }
 
-    public function toko(): BelongsTo
-    {
-        return $this->belongsTo(Toko::class, 'id_toko');
-    }
-
     public function user(): HasMany
     {
         return $this->hasMany(User::class, 'id_user', 'id');

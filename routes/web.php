@@ -129,11 +129,14 @@ Route::middleware(['auth'])->group(function () {
         // Member Controller
         Route::get('/member', [MemberController::class, 'index'])->name('master.member.index');
         Route::post('/member/store', [MemberController::class, 'store'])->name('master.member.store');
-        Route::get('/members/{id}/edit', [MemberController::class, 'edit'])->name('members.edit');
+        Route::get('/member/detail/{id}', [MemberController::class, 'detail'])->name('master.member.detail');
         Route::put('/member/update/{id}', [MemberController::class, 'update'])->name('master.member.update');
         Route::delete('/member/delete/{id}', [MemberController::class, 'delete'])->name('master.member.delete');
-        Route::get('/get-level-harga/{id_toko}', [MemberController::class, 'getLevelHarga']);
         Route::post('/import-member', [MemberController::class, 'import'])->name('master.member.import');
+        Route::get('/indonesia/provinces', [MemberController::class, 'provinces'])->name('indonesia.provinces');
+        Route::get('/indonesia/regencies/{province}', [MemberController::class, 'regencies'])->name('indonesia.regencies');
+        Route::get('/indonesia/districts/{city}', [MemberController::class, 'districts'])->name('indonesia.districts');
+        Route::get('/indonesia/villages/{district}', [MemberController::class, 'villages'])->name('indonesia.villages');
 
         // Promo Controller
         Route::get('/promo', [PromoController::class, 'index'])->name('master.promo.index');

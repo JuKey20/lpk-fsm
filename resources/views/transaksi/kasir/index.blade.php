@@ -204,8 +204,7 @@
                                             <option value="" selected>Pilih Member</option>
                                             <option value="Guest">Guest</option>
                                             @foreach ($member as $mbr)
-                                                <option value="{{ $mbr->id }}"
-                                                    data-level-info='@json($mbr->level_info)'>
+                                                <option value="{{ $mbr->id }}">
                                                     {{ $mbr->nama_member }}
                                                 </option>
                                             @endforeach

@@ -25,19 +25,8 @@
                             <form action="{{ route('master.user.store') }}" method="post" class="">
                                 <div class="table-responsive">
                                     @csrf
-                                    @if (auth()->user()->id_level == 1)
-                                        <div class="form-group">
-                                            <label for="id_toko" class=" form-control-label">Nama Toko<span
-                                                    style="color: red">*</span></label>
-                                            <select name="id_toko" id="selector" class="form-control select2"
-                                                tabindex="1">
-                                            </select>
-                                        </div>
-                                    @else
-                                        <input type="hidden" name="id_toko" value="{{ auth()->user()->id_toko }}">
-                                    @endif
                                     <div class="form-group">
-                                        <label for="id_level" class="form-control-label">Level<span
+                                        <label for="id_level" class="form-control-label">Peran<span
                                                 style="color: red">*</span></label>
                                         <select name="id_level" id="selectors" class="form-control" tabindex="2">
                                         </select>
@@ -105,13 +94,9 @@
 @section('js')
     <script>
         let selectOptions = [{
-            id: '#selector',
-            isUrl: '{{ route('master.toko') }}',
-            placeholder: 'Pilih Nama Toko',
-        }, {
             id: '#selectors',
             isUrl: '{{ route('master.levelUser') }}',
-            placeholder: 'Pilih Level User',
+            placeholder: 'Pilih Peran',
             isFilter: {
                 id_level: '{{ auth()->user()->id_level }}',
             },

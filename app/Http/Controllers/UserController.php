@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Imports\UserImport;
 use App\Models\LevelUser;
-use App\Models\Toko;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,15 +31,7 @@ class UserController extends Controller
 
         $query = User::query();
 
-        $query->with(['toko', 'leveluser',])->orderBy('id', $meta['orderBy']);
-
-        // Filter berdasarkan id_toko
-        if ($request->has('id_toko')) {
-            $idToko = $request->input('id_toko');
-            if ($idToko != 1) {
-                $query->where('id_toko', $idToko);
-            }
-        }
+        $query->with(['leveluser'])->orderBy('id', $meta['orderBy']);
 
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
@@ -49,11 +40,6 @@ class UserController extends Controller
                 // Pencarian pada kolom langsung
                 $query->orWhereRaw("LOWER(nama) LIKE ?", ["%$searchTerm%"]);
                 $query->orWhereRaw("LOWER(email) LIKE ?", ["%$searchTerm%"]);
-
-                // Pencarian pada relasi 'supplier->nama_supplier'
-                $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
-                    $subquery->whereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
-                });
 
                 $query->orWhereHas('leveluser', function ($subquery) use ($searchTerm) {
                     $subquery->whereRaw("LOWER(nama_level) LIKE ?", ["%$searchTerm%"]);
@@ -94,7 +80,6 @@ class UserController extends Controller
         $mappedData = collect($data['data'])->map(function ($item) {
             return [
                 'id' => $item['id'],
-                'nama_toko' => optional($item['toko'])->nama_toko ?? 'Tidak ada',
                 'nama_level' => optional($item['leveluser'])->nama_level ?? 'Tidak ada',
                 'nama' => $item->nama,
                 'username' => $item->username,
@@ -118,18 +103,7 @@ class UserController extends Controller
         $menu = [$this->title[0], $this->label[0]];
         $user = Auth::user(); // Mendapatkan user yang sedang login
 
-        // Jika user memiliki leveluser = 1, tampilkan semua data user
-        if ($user->id_level == 1) {
-            $users = User::with('leveluser', 'toko')
-                ->orderBy('id', 'desc')
-                ->get();
-        } else {
-            // Jika leveluser selain 1, hanya tampilkan user dari toko yang sama
-            $users = User::with('leveluser', 'toko')
-                ->where('id_toko', $user->id_toko)
-                ->orderBy('id', 'desc')
-                ->get();
-        }
+        $users = User::with('leveluser')->orderBy('id', 'desc')->get();
 
         $leveluser = LevelUser::all();
 
@@ -145,21 +119,18 @@ class UserController extends Controller
         }
 
         $menu = [$this->title[0], $this->label[0], $this->title[1]];
-        $toko = Toko::all();
         $leveluser = LevelUser::all();
-        return view('master.user.create', compact('menu', 'toko', 'leveluser'), [
+        return view('master.user.create', compact('menu', 'leveluser'), [
             'leveluser' => LevelUser::all()->pluck('nama_level', 'id'),
-            'toko' => Toko::all()->pluck('nama_toko', 'id'),
         ]);
     }
 
     public function store(Request $request)
     {
         // dd($request);
-        $validatedData = $request->validate(
+        $request->validate(
             [
-                'id_toko' => 'required',
-                'id_level' => 'required',
+                'id_level' => 'required|not_in:1',
                 'nama' => 'required|max:255',
                 'username' => 'required|max:255',
                 'password' => 'required|min:8|regex:/([0-9])/',
@@ -168,8 +139,8 @@ class UserController extends Controller
                 'no_hp' => 'required|max:255',
             ],
             [
-                'id_toko.required' => 'Nama Toko tidak boleh kosong.',
                 'id_level.required' => 'Nama Level tidak boleh kosong.',
+                'id_level.not_in' => 'Peran Super Admin tidak bisa dipilih.',
                 'nama.required' => 'Nama tidak boleh kosong.',
                 'username.required' => 'Username tidak boleh kosong.',
                 'password.required' => 'Password tidak boleh kosong.',
@@ -182,7 +153,6 @@ class UserController extends Controller
         );
         try {
             User::create([
-                'id_toko' => $request->id_toko,
                 'id_level' => $request->id_level,
                 'nama' => $request->nama,
                 'username' => $request->username,
@@ -204,21 +174,42 @@ class UserController extends Controller
         }
 
         $menu = [$this->title[0], $this->label[0], $this->title[2]];
-        $user = User::with(['leveluser', 'toko'])->findOrFail($id);
+        $user = User::with(['leveluser'])->findOrFail($id);
 
         // dd($user);
-        $toko = Toko::all();
         $leveluser = LevelUser::all();
-        return view('master.user.edit', compact('menu', 'user', 'toko', 'leveluser'));
+        return view('master.user.edit', compact('menu', 'user', 'leveluser'));
     }
 
     public function update(Request $request, string $id)
     {
         $user = User::findOrFail($id);
 
+        $request->validate(
+            [
+                'id_level' => 'required|not_in:1',
+                'nama' => 'required|max:255',
+                'username' => 'required|max:255',
+                'password' => 'nullable|min:8|regex:/([0-9])/',
+                'email' => 'required|max:255',
+                'alamat' => 'required|max:255',
+                'no_hp' => 'required|max:255',
+            ],
+            [
+                'id_level.required' => 'Nama Level tidak boleh kosong.',
+                'id_level.not_in' => 'Peran Super Admin tidak bisa dipilih.',
+                'nama.required' => 'Nama tidak boleh kosong.',
+                'username.required' => 'Username tidak boleh kosong.',
+                'password.min' => 'Password minimal 8 karakter.',
+                'password.regex' => 'Password harus mengandung minimal satu angka.',
+                'email.required' => 'Email tidak boleh kosong.',
+                'alamat.required' => 'Alamat tidak boleh kosong.',
+                'no_hp.required' => 'No Hp tidak boleh kosong.',
+            ]
+        );
+
         try {
             $data = [
-                'id_toko' => $request->id_toko,
                 'id_level' => $request->id_level,
                 'nama' => $request->nama,
                 'username' => $request->username,

@@ -27,10 +27,6 @@ class Toko extends Model
         return $this->hasMany(DetailToko::class, 'id_toko', 'id');
     }
 
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'id_toko', 'id');
-    }
 
     public function pengirimanSebagaiPengirim()
     {

@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('title')
-    Data Member
+    Data Siswa
 @endsection
 
 @section('css')
@@ -23,17 +23,17 @@
                                     <a class="btn btn-primary custom-btn-tambah text-white" data-toggle="modal"
                                         data-target=".bd-example-modal-lg">
                                         <span data-container="body" data-toggle="tooltip" data-placement="top"
-                                            title="Tambah Data Member"><i class="fa fa-plus-circle mr-1"></i>Tambah</span>
+                                            title="Tambah Data Siswa"><i class="fa fa-plus-circle mr-1"></i>Tambah</span>
                                     </a>
                                 </div>
-                                <form action="{{ route('master.member.import') }}" method="POST"
+                                {{-- <form action="{{ route('master.member.import') }}" method="POST"
                                     enctype="multipart/form-data" class="custom-form-import">
                                     @csrf
                                     <input type="file" name="file" class="custom-input-file" accept=".xlsx" required>
                                     <button type="submit" class="btn btn-success custom-btn-import">
                                         <i class="fa fa-file-import"></i> Import
                                     </button>
-                                </form>
+                                </form> --}}
                             </div>
                             <div class="custom-right">
                                 <div class="custom-limit-page">
@@ -53,15 +53,18 @@
                             <x-adminlte-alerts />
                             <div class="card-body p-0">
                                 <div class="table-responsive table-scroll-wrapper">
-                                    <table class="table table-striped m-0">
+                                    <table class="table table-striped table-bordered m-0">
                                         <thead>
                                             <tr class="tb-head">
                                                 <th class="text-center text-wrap align-top">No</th>
-                                                <th class="text-wrap align-top">Nama Member</th>
-                                                <th class="text-wrap align-top">Nama Toko</th>
-                                                <th class="text-wrap align-top">Level</th>
-                                                <th class="text-wrap align-top">No. Hp</th>
-                                                <th class="text-wrap align-top">Alamat</th>
+                                                <th class="text-wrap align-top">Nama</th>
+                                                <th class="text-wrap align-top">NIK</th>
+                                                <th class="text-wrap align-top">TTL</th>
+                                                <th class="text-wrap align-top">Domisili</th>
+                                                <th class="text-wrap align-top">Jenis Kelamin</th>
+                                                <th class="text-wrap align-top">Agama</th>
+                                                <th class="text-wrap align-top">No. HP / Email</th>
+                                                <th class="text-wrap align-top">Tahun Masuk</th>
                                                 <th class="text-center text-wrap align-top">Action</th>
                                             </tr>
                                         </thead>
@@ -92,10 +95,10 @@
 
     <div id="modal-form" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
         aria-labelledby="myLargeModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl" style="max-width: 1200px;">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h6 class="modal-title h4" id="myLargeModalLabel">Tambah Data Member</h6>
+                    <h6 class="modal-title h4" id="myLargeModalLabel">Tambah Data Siswa</h6>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
                 </div>
@@ -107,57 +110,194 @@
                                     <div class="table-responsive">
                                         <form action="{{ route('master.member.store') }}" method="post" class="">
                                             @csrf
-                                            <div class="form-group">
-                                                <label for="id_toko" class="form-control-label">Nama Toko<span
-                                                        style="color: red">*</span></label>
-                                                <select id="id_toko" name="id_toko" class="form-control id-toko select2">
-                                                    <option value="" selected>~Silahkan Pilih Toko~</option>
-                                                    @foreach ($toko as $tk)
-                                                        <option value="{{ $tk->id }}"
-                                                            {{ count($toko) === 1 ? 'selected' : '' }}>
-                                                            {{ $tk->nama_toko }}
-                                                        </option>
-                                                    @endforeach
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <h5 class="mb-3">Data Identitas Pribadi</h5>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="form-control-label">Nama lengkap<span
+                                                                style="color: red">*</span></label>
+                                                        <input type="text" name="nama_member"
+                                                            placeholder="Masukkan nama lengkap Siswa" class="form-control" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="form-control-label">NIK (Nomor Induk Kependudukan)<span
+                                                                style="color: red">*</span></label>
+                                                        <input type="text" name="nik" maxlength="16"
+                                                            placeholder="16 digit" class="form-control" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="form-control-label">Tempat Lahir<span
+                                                                style="color: red">*</span></label>
+                                                        <input type="text" name="tempat_lahir" class="form-control"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="form-control-label">Tanggal Lahir<span
+                                                                style="color: red">*</span></label>
+                                                        <input type="date" name="tanggal_lahir" class="form-control"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="form-control-label">Jenis kelamin<span
+                                                                style="color: red">*</span></label>
+                                                        <select name="jenis_kelamin" class="form-control" required>
+                                                            <option value="">~Pilih~</option>
+                                                            <option value="Laki-laki">Laki-laki</option>
+                                                            <option value="Perempuan">Perempuan</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="form-control-label">Agama<span
+                                                                style="color: red">*</span></label>
+                                                        <select name="agama" class="form-control" required>
+                                                            <option value="">~Pilih~</option>
+                                                            <option value="Islam">Islam</option>
+                                                            <option value="Kristen">Kristen</option>
+                                                            <option value="Katolik">Katolik</option>
+                                                            <option value="Hindu">Hindu</option>
+                                                            <option value="Buddha">Buddha</option>
+                                                            <option value="Konghucu">Konghucu</option>
+                                                            <option value="Lainnya">Lainnya</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="form-control-label">Status pernikahan<span
+                                                                style="color: red">*</span></label>
+                                                        <select name="status_pernikahan" class="form-control" required>
+                                                            <option value="">~Pilih~</option>
+                                                            <option value="Belum Menikah">Belum Menikah</option>
+                                                            <option value="Menikah">Menikah</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="form-control-label">Tahun Masuk LPK<span
+                                                                style="color: red">*</span></label>
+                                                        <input type="number" name="tahun_ajaran" min="1900" max="2100"
+                                                            placeholder="Contoh: 2026" class="form-control" required>
+                                                    </div>
+                                                </div>
 
-                                                </select>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="nama_member" class=" form-control-label">Nama Member<span
-                                                        style="color: red">*</span></label>
-                                                <input type="text" id="nama_member" name="nama_member"
-                                                    placeholder="Contoh : Member 1" class="form-control">
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="jenis_barang" class="form-control-label">Jenis Barang</label>
-                                                <ul class="list-group list-group-flush">
-                                                    @foreach ($jenis_barang as $jb)
-                                                        <li class="list-group-item">
-                                                            <h6>{{ $jb->nama_jenis_barang }}
-                                                                <select name="level_harga[{{ $jb->id }}]"
-                                                                    id="level_harga_{{ $jb->id }}"
-                                                                    class="form-control">
-                                                                    <option value="" selected>~Silahkan Pilih Toko
-                                                                        Dahulu~</option>
-                                                                    @foreach ($levelharga as $lh)
-                                                                    @endforeach
-                                                                </select>
-                                                            </h6>
-                                                        </li>
-                                                    @endforeach
-                                                </ul>
-                                            </div>
+                                                <div class="col-12 mt-2">
+                                                    <h5 class="mb-3">Data Kontak & Alamat</h5>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="form-control-label">No. HP<span
+                                                                style="color: red">*</span></label>
+                                                        <input type="number" name="no_hp"
+                                                            placeholder="Contoh : 08xxxxxxxxxx" class="form-control"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="form-control-label">Email<span
+                                                                style="color: red">*</span></label>
+                                                        <input type="email" name="email"
+                                                            placeholder="Contoh : siswa@email.com" class="form-control"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="form-control-label">Provinsi<span
+                                                                style="color: red">*</span></label>
+                                                        <select id="province_code" name="province_code"
+                                                            class="form-control province_code" required></select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="form-control-label">Kabupaten/Kota<span
+                                                                style="color: red">*</span></label>
+                                                        <select id="city_code" name="city_code"
+                                                            class="form-control city_code" disabled required></select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="form-control-label">Kecamatan<span
+                                                                style="color: red">*</span></label>
+                                                        <select id="district_code" name="district_code"
+                                                            class="form-control district_code" disabled required></select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="form-control-label">Desa/Kelurahan<span
+                                                                style="color: red">*</span></label>
+                                                        <select id="village_code" name="village_code"
+                                                            class="form-control village_code" disabled required></select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="form-group">
+                                                        <label class="form-control-label">Alamat<span
+                                                                style="color: red">*</span></label>
+                                                        <textarea name="alamat_domisili" rows="3" class="form-control"
+                                                            required></textarea>
+                                                    </div>
+                                                </div>
 
-                                            <div class="form-group">
-                                                <label for="no_hp" class=" form-control-label">No HP<span
-                                                        style="color: red">*</span></label>
-                                                <input type="number" id="no_hp" name="no_hp"
-                                                    placeholder="Contoh : member123@gmail.com" class="form-control">
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="alamat" class=" form-control-label">Alamat<span
-                                                        style="color: red">*</span></label>
-                                                <textarea name="alamat" id="alamat" rows="4"
-                                                    placeholder="Contoh : Jl. Nyimas Gandasari No.18 Plered - Cirebon" class="form-control"></textarea>
+                                                <div class="col-12 mt-2">
+                                                    <h5 class="mb-3">Data Pendidikan</h5>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="form-control-label">Pendidikan terakhir<span
+                                                                style="color: red">*</span></label>
+                                                        <select name="pendidikan_terakhir" class="form-control" required>
+                                                            <option value="">~Pilih~</option>
+                                                            <option value="SD">SD</option>
+                                                            <option value="SMP">SMP</option>
+                                                            <option value="SMA/SMK">SMA/SMK</option>
+                                                            <option value="D3">D3</option>
+                                                            <option value="S1">S1</option>
+                                                            <option value="S2">S2</option>
+                                                            <option value="S3">S3</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="form-control-label">Jurusan<span
+                                                                style="color: red">*</span></label>
+                                                        <input type="text" name="jurusan" class="form-control" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="form-control-label">Nama sekolah / universitas<span
+                                                                style="color: red">*</span></label>
+                                                        <input type="text" name="nama_sekolah" class="form-control"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="form-control-label">Tahun lulus<span
+                                                                style="color: red">*</span></label>
+                                                        <input type="number" name="tahun_lulus" min="1900" max="2100"
+                                                            class="form-control" required>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div class="form-group">
                                                 <button type="submit" class="btn btn-primary">
@@ -177,75 +317,206 @@
 
     <!-- Modal form edit -->
     @foreach ($member as $mbr)
-        <div class="modal fade bd-example-modal-lg" id="editMemberModal{{ $mbr->id }}" tabindex="-1"
-            role="dialog" aria-labelledby="editMemberModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
+        <div class="modal fade edit-member-modal" id="editMemberModal{{ $mbr->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="editMemberModalLabel{{ $mbr->id }}" aria-hidden="true"
+            data-province="{{ $mbr->province_code }}" data-city="{{ $mbr->city_code }}"
+            data-district="{{ $mbr->district_code }}" data-village="{{ $mbr->village_code }}">
+            <div class="modal-dialog modal-xl" style="max-width: 1200px;" role="document">
                 <div class="modal-content">
                     <form action="{{ route('master.member.update', $mbr->id) }}" method="post">
                         @csrf
                         @method('put')
                         <div class="modal-header">
-                            <h5 class="modal-title" id="editMemberModalLabel">Edit Data Member</h5>
+                            <h6 class="modal-title h4" id="editMemberModalLabel{{ $mbr->id }}">Edit Data Siswa</h6>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
-                            <!-- Nama Member -->
-                            <div class="form-group">
-                                <label for="nama_member">Nama Member<span style="color: red">*</span></label>
-                                <input type="text" name="nama_member" class="form-control"
-                                    value="{{ $mbr->nama_member }}" required>
-                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <h5 class="mb-3">Data Identitas Pribadi</h5>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Nama lengkap<span
+                                                style="color: red">*</span></label>
+                                        <input type="text" name="nama_member" class="form-control" required
+                                            value="{{ $mbr->nama_member }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">NIK (Nomor Induk Kependudukan)<span
+                                                style="color: red">*</span></label>
+                                        <input type="text" name="nik" maxlength="16" class="form-control" required
+                                            value="{{ $mbr->nik }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Tempat Lahir<span
+                                                style="color: red">*</span></label>
+                                        <input type="text" name="tempat_lahir" class="form-control" required
+                                            value="{{ $mbr->tempat_lahir }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Tanggal Lahir<span
+                                                style="color: red">*</span></label>
+                                        <input type="date" name="tanggal_lahir" class="form-control" required
+                                            value="{{ $mbr->tanggal_lahir }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Jenis kelamin<span
+                                                style="color: red">*</span></label>
+                                        <select name="jenis_kelamin" class="form-control" required>
+                                            <option value="">~Pilih~</option>
+                                            <option value="Laki-laki" {{ $mbr->jenis_kelamin == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
+                                            <option value="Perempuan" {{ $mbr->jenis_kelamin == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Agama<span
+                                                style="color: red">*</span></label>
+                                        <select name="agama" class="form-control" required>
+                                            <option value="">~Pilih~</option>
+                                            <option value="Islam" {{ $mbr->agama == 'Islam' ? 'selected' : '' }}>Islam</option>
+                                            <option value="Kristen" {{ $mbr->agama == 'Kristen' ? 'selected' : '' }}>Kristen</option>
+                                            <option value="Katolik" {{ $mbr->agama == 'Katolik' ? 'selected' : '' }}>Katolik</option>
+                                            <option value="Hindu" {{ $mbr->agama == 'Hindu' ? 'selected' : '' }}>Hindu</option>
+                                            <option value="Buddha" {{ $mbr->agama == 'Buddha' ? 'selected' : '' }}>Buddha</option>
+                                            <option value="Konghucu" {{ $mbr->agama == 'Konghucu' ? 'selected' : '' }}>Konghucu</option>
+                                            <option value="Lainnya" {{ $mbr->agama == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Status pernikahan<span
+                                                style="color: red">*</span></label>
+                                        <select name="status_pernikahan" class="form-control" required>
+                                            <option value="">~Pilih~</option>
+                                            <option value="Belum Menikah" {{ $mbr->status_pernikahan == 'Belum Menikah' ? 'selected' : '' }}>Belum Menikah</option>
+                                            <option value="Menikah" {{ $mbr->status_pernikahan == 'Menikah' ? 'selected' : '' }}>Menikah</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Tahun Masuk LPK<span
+                                                style="color: red">*</span></label>
+                                        <input type="number" name="tahun_ajaran" min="1900" max="2100"
+                                            placeholder="Contoh: 2026" class="form-control" required
+                                            value="{{ $mbr->tahun_ajaran }}">
+                                    </div>
+                                </div>
 
-                            <!-- Nama Toko -->
-                            <div class="form-group">
-                                <label for="id_toko_{{ $mbr->id }}" class=" form-control-label">Nama Toko<span
-                                        style="color: red">*</span></label>
-                                <select name="id_toko" id="selectors" class="form-control" required>
-                                    <option value="">~Silahkan Pilih Toko~</option>
-                                    @foreach ($toko as $tk)
-                                        <option value="{{ $tk->id }}"
-                                            {{ old('id_toko', $mbr->id_toko) == $tk->id ? 'selected' : '' }}>
-                                            {{ $tk->nama_toko }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="jenis_barang" class="form-control-label">Jenis Barang</label>
-                                <ul class="list-group list-group-flush">
-                                    @foreach ($jenis_barang as $jb)
-                                        <li class="list-group-item">
-                                            <h6>{{ $jb->nama_jenis_barang }}
-                                                <select name="level_harga[{{ $jb->id }}]"
-                                                    id="level_harga_{{ $jb->id }}" class="form-control">
-                                                    <option value="">~Silahkan Pilih~</option>
-                                                    @foreach ($levelharga as $lh)
-                                                        <option value="{{ $lh->id }}"
-                                                            {{ isset($selected_levels[$mbr->id][$jb->id]) && $selected_levels[$mbr->id][$jb->id] == $lh->id ? 'selected' : '' }}>
-                                                            {{ $lh->nama_level_harga }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </h6>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
+                                <div class="col-12 mt-2">
+                                    <h5 class="mb-3">Data Kontak & Alamat</h5>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">No. HP<span
+                                                style="color: red">*</span></label>
+                                        <input type="number" name="no_hp" class="form-control" required
+                                            value="{{ $mbr->no_hp }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Email<span
+                                                style="color: red">*</span></label>
+                                        <input type="email" name="email" class="form-control" required
+                                            value="{{ $mbr->email }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Provinsi<span
+                                                style="color: red">*</span></label>
+                                        <select id="province_code_{{ $mbr->id }}" name="province_code"
+                                            class="form-control province_code" required></select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Kabupaten/Kota<span
+                                                style="color: red">*</span></label>
+                                        <select id="city_code_{{ $mbr->id }}" name="city_code"
+                                            class="form-control city_code" disabled required></select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Kecamatan<span
+                                                style="color: red">*</span></label>
+                                        <select id="district_code_{{ $mbr->id }}" name="district_code"
+                                            class="form-control district_code" disabled required></select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Desa/Kelurahan<span
+                                                style="color: red">*</span></label>
+                                        <select id="village_code_{{ $mbr->id }}" name="village_code"
+                                            class="form-control village_code" disabled required></select>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Alamat<span
+                                                style="color: red">*</span></label>
+                                        <textarea name="alamat_domisili" rows="3" class="form-control" required>{{ $mbr->alamat_domisili ?? $mbr->alamat }}</textarea>
+                                    </div>
+                                </div>
 
-                            <!-- Nomor Hp -->
-                            <div class="form-group">
-                                <label for="no_hp">No HP<span style="color: red">*</span></label>
-                                <input type="number" name="no_hp" class="form-control" value="{{ $mbr->no_hp }}"
-                                    required>
-                            </div>
-
-                            <!-- Alamat -->
-                            <div class="form-group">
-                                <label for="alamat" class=" form-control-label">Alamat<span
-                                        style="color: red">*</span></label>
-                                <textarea name="alamat" id="alamat" rows="4" class="form-control">{{ $mbr->alamat }}</textarea>
+                                <div class="col-12 mt-2">
+                                    <h5 class="mb-3">Data Pendidikan</h5>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Pendidikan terakhir<span
+                                                style="color: red">*</span></label>
+                                        <select name="pendidikan_terakhir" class="form-control" required>
+                                            <option value="">~Pilih~</option>
+                                            <option value="SD" {{ $mbr->pendidikan_terakhir == 'SD' ? 'selected' : '' }}>SD</option>
+                                            <option value="SMP" {{ $mbr->pendidikan_terakhir == 'SMP' ? 'selected' : '' }}>SMP</option>
+                                            <option value="SMA/SMK" {{ $mbr->pendidikan_terakhir == 'SMA/SMK' ? 'selected' : '' }}>SMA/SMK</option>
+                                            <option value="D3" {{ $mbr->pendidikan_terakhir == 'D3' ? 'selected' : '' }}>D3</option>
+                                            <option value="S1" {{ $mbr->pendidikan_terakhir == 'S1' ? 'selected' : '' }}>S1</option>
+                                            <option value="S2" {{ $mbr->pendidikan_terakhir == 'S2' ? 'selected' : '' }}>S2</option>
+                                            <option value="S3" {{ $mbr->pendidikan_terakhir == 'S3' ? 'selected' : '' }}>S3</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Jurusan<span
+                                                style="color: red">*</span></label>
+                                        <input type="text" name="jurusan" class="form-control" required value="{{ $mbr->jurusan }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Nama sekolah / universitas<span
+                                                style="color: red">*</span></label>
+                                        <input type="text" name="nama_sekolah" class="form-control" required value="{{ $mbr->nama_sekolah }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Tahun lulus<span
+                                                style="color: red">*</span></label>
+                                        <input type="number" name="tahun_lulus" min="1900" max="2100"
+                                            class="form-control" required value="{{ $mbr->tahun_lulus }}">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -257,6 +528,23 @@
             </div>
         </div>
     @endforeach
+
+    <div class="modal fade" id="detailMemberModal" tabindex="-1" role="dialog" aria-labelledby="detailMemberModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" style="max-width: 1000px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title h4" id="detailMemberModalLabel">Detail Biodata Siswa</h6>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body" id="detailMemberContent"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('asset_js')
@@ -285,7 +573,6 @@
                     limit: limit,
                     ascending: ascending,
                     search: search,
-                    id_toko: '{{ auth()->user()->id_toko }}',
                     ...filterParams
                 }
             ).then(function(response) {
@@ -313,36 +600,43 @@
         }
 
         async function handleData(data) {
+            let detail_button = `
+                <button type="button" class="btn btn-sm btn-light border border-2 detail-data px-2"
+                    data-toggle="modal" data-target="#detailMemberModal" data-id='${data.id}'>
+                    <i class="fa fa-eye text-info" data-container="body" data-toggle="tooltip" data-placement="top"
+                        title="Detail Data Siswa: ${data.nama}"></i>
+                </button>`;
+
             let edit_button = `
-                <a class="p-1 btn edit-data action_button" data-toggle="modal" data-target="#editMemberModal${data.id}"
-                    data-id='${data.id}'>
-                    <span class="text-dark" data-container="body" data-toggle="tooltip" data-placement="top"
-                    title="Edit ${title}: ${data.nama_member}">Edit</span>
-                    <div class="icon text-warning" data-container="body" data-toggle="tooltip" data-placement="top"
-                    title="Edit ${title}: ${data.nama_member}">
-                        <i class="fa fa-edit"></i>
-                    </div>
-                </a>`;
+                <button type="button" class="btn btn-sm btn-light border border-2 edit-data px-2"
+                    data-toggle="modal" data-target="#editMemberModal${data.id}" data-id='${data.id}'>
+                    <i class="fa fa-edit text-warning" data-container="body" data-toggle="tooltip" data-placement="top"
+                        title="Edit Data Siswa: ${data.nama}"></i>
+                </button>`;
 
             let delete_button = `
-                <a class="p-1 btn hapus-data action_button"
+                <button type="button" class="btn btn-sm btn-light border border-2 hapus-data px-2"
                     data-container="body" data-toggle="tooltip" data-placement="top"
-                    title="Hapus ${title}: ${data.nama_member}"
+                    title="Hapus Data Siswa: ${data.nama}"
                     data-id='${data.id}'
-                    data-name='${data.nama_member}'>
-                    <span class="text-dark">Hapus</span>
-                    <div class="icon text-danger">
-                        <i class="fa fa-trash"></i>
-                    </div>
-                </a>`;
+                    data-name='${data.nama}'>
+                    <i class="fa fa-trash text-danger"></i>
+                </button>`;
 
             return {
                 id: data?.id ?? '-',
-                nama_member: data?.nama_member ?? '-',
-                nama_toko: data?.nama_toko ?? '<span class="badge badge-danger">Tidak Ada Toko</span>',
-                level: data?.level ?? [],
+                nama: data?.nama ?? '-',
+                nik: data?.nik ?? '-',
+                tempat_lahir: data?.tempat_lahir ?? '-',
+                tanggal_lahir: data?.tanggal_lahir ?? '-',
+                kabupaten_provinsi: data?.kabupaten_provinsi ?? '-',
+                kecamatan_desa: data?.kecamatan_desa ?? '-',
+                jenis_kelamin: data?.jenis_kelamin ?? '-',
+                agama: data?.agama ?? '-',
                 no_hp: data?.no_hp ?? '-',
-                alamat: data?.alamat ?? '-',
+                email: data?.email ?? '-',
+                tahun_masuk_lpk: data?.tahun_masuk_lpk ?? '-',
+                detail_button,
                 edit_button,
                 delete_button,
             };
@@ -357,28 +651,34 @@
             let getDataTable = '';
             let classCol = 'align-center text-dark text-wrap';
             dataList.forEach((element, index) => {
-                let levelList = '';
-                if (Array.isArray(element.level) && element.level.length > 0) {
-                    levelList = '<div class="mb-0">';
-                    element.level.forEach(levelItem => {
-                        levelList +=
-                            `<div>${levelItem.nama_jenis_barang} : ${levelItem.nama_level_harga}</div>`;
-                    });
-                    levelList += '</div>';
-                } else {
-                    levelList = '<span class="badge badge-danger">Tidak Ada Level</span>';
-                }
-
+                const kabProvRaw = `${element.kabupaten_provinsi ?? '-'}`;
+                const kabProvSplitIndex = kabProvRaw.lastIndexOf(',');
+                const kabupatenText = kabProvSplitIndex > -1 ? kabProvRaw.slice(0, kabProvSplitIndex).trim() : kabProvRaw.trim();
+                const provinsiText = kabProvSplitIndex > -1 ? kabProvRaw.slice(kabProvSplitIndex + 1).trim() : '';
+                const kabupatenHtml = kabupatenText ? `<strong>${kabupatenText}</strong>` : '';
+                const provinsiHtml = provinsiText ? `<strong>${provinsiText}</strong>` : '';
+                const barisAtas = provinsiHtml ? `${kabupatenHtml}, ${provinsiHtml}` : kabupatenHtml;
+                const wilayahHtml = `<div>${barisAtas || '-'}</div><div class="text-muted" style="font-size: 12px; line-height: 1.2;">${element.kecamatan_desa ?? '-'}</div>`;
+                const ttlTempat = `${element.tempat_lahir ?? '-'}`;
+                const ttlTanggal = `${element.tanggal_lahir ?? '-'}`;
+                const ttlHtml = `<div>${ttlTempat}${ttlTempat !== '-' ? ',' : ''}</div><div class="text-muted" style="font-size: 12px; line-height: 1.2;">${ttlTanggal}</div>`;
+                const noHpHtml = `<div>${element.no_hp ?? '-'}</div><div class="text-muted" style="font-size: 12px; line-height: 1.2;">${element.email ?? '-'}</div>`;
                 getDataTable += `
                     <tr class="text-dark">
                         <td class="${classCol} text-center">${display_from + index}.</td>
-                        <td class="${classCol}">${element.nama_member}</td>
-                        <td class="${classCol}">${element.nama_toko}</td>
-                        <td class="${classCol}">${levelList}</td>
-                        <td class="${classCol}">${element.no_hp}</td>
-                        <td class="${classCol}">${element.alamat}</td>
+                        <td class="${classCol}">${element.nama}</td>
+                        <td class="${classCol}">${element.nik}</td>
+                        <td class="${classCol}">${ttlHtml}</td>
+                        <td class="${classCol}">${wilayahHtml}</td>
+                        <td class="${classCol}">${element.jenis_kelamin}</td>
+                        <td class="${classCol}">${element.agama}</td>
+                        <td class="${classCol}">${noHpHtml}</td>
+                        <td class="${classCol}">${element.tahun_masuk_lpk}</td>
                         <td class="${classCol}">
                             <div class="d-flex justify-content-center w-100">
+                                <div class="hovering p-1">
+                                    ${element.detail_button}
+                                </div>
                                 <div class="hovering p-1">
                                     ${element.edit_button}
                                 </div>
@@ -438,130 +738,134 @@
             })
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const element = document.getElementById('selector');
-            const choices = new Choices(element, {
-                removeItemButton: true, // Memungkinkan penghapusan item
-                searchEnabled: true, // Mengaktifkan pencarian
-            });
-        });
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            $('#id_toko').on('change', function() {
-                var idToko = $(this).val(); // Get the selected value of id_toko
+        async function detailData() {
+            $(document).on("click", ".detail-data", async function() {
+                const id = $(this).attr("data-id");
+                $('#detailMemberContent').html('<div class="p-3">Memuat...</div>');
 
-                // Loop through all types of goods
-                @foreach ($jenis_barang as $jb)
-                    (function(jbId) {
-                        var levelHargaDropdown = document.getElementById('level_harga_' +
-                            jbId); // Get the level_harga dropdown for this type of good
-
-                        // Reset the dropdown
-                        levelHargaDropdown.innerHTML = '<option value="">~Silahkan Pilih~</option>';
-
-                        if (idToko) { // Ensure there is a selected id_toko
-                            // Make an AJAX request to get level_harga
-                            var xhr = new XMLHttpRequest();
-                            xhr.open('GET', '/admin/get-level-harga/' + idToko, true);
-
-                            xhr.onload = function() {
-                                if (xhr.status === 200) {
-                                    console.log('Server response:', xhr.responseText);
-
-                                    var data = JSON.parse(xhr.responseText);
-
-                                    // Check if there are level harga
-                                    if (data.length > 0) {
-                                        // Loop through the data and add options to the dropdown
-                                        data.forEach(function(level) {
-                                            var option = document.createElement('option');
-                                            option.value = level.id; // Level price ID
-                                            option.text = level
-                                                .nama_level_harga; // Level price name
-                                            levelHargaDropdown.appendChild(option);
-                                        });
-                                    } else {
-                                        // If no level harga, add "No Level" option
-                                        var option = document.createElement('option');
-                                        option.value = ""; // Empty value
-                                        option.text = "Tidak ada Level"; // Text for the option
-                                        levelHargaDropdown.appendChild(option);
-                                    }
-                                } else {
-                                    console.error('Error fetching data from server');
-                                }
-                            };
-
-                            xhr.send(); // Send the request
-                        }
-                    })({{ $jb->id }});
-                @endforeach
-            });
-
-            const element = document.getElementById('selectors');
-            const choices = new Choices(element, {
-                removeItemButton: true,
-                searchEnabled: true,
-            });
-
-            // document.addEventListener('DOMContentLoaded', function() {
-            //     // Ambil semua tombol dengan atribut data-id
-            //     var editButtons = document.querySelectorAll('button[data-id]');
-
-            //     // Tambahkan event listener ke setiap tombol edit
-            //     editButtons.forEach(function(button) {
-            //         button.addEventListener('click', function() {
-            //             // Ambil id_member dari atribut data-id
-            //             var idMember = this.getAttribute('data-id');
-
-            //             // Tampilkan id_member di console log
-            //             console.log('Tombol Edit diklik, ID Member:', idMember);
-            //         });
-            //     });
-            // });
-
-            function editMember(id) {
-                console.log('ID Member yang diedit:', id); // Log id_member yang sedang diedit
-
-                $.ajax({
-                    url: '/member/' + id + '/edit', // URL menuju method edit
-                    method: 'GET',
-                    success: function(data) {
-                        console.log('ID Toko yang dipilih:', data
-                            .id_toko); // Log id_toko yang dipilih
-
-                        // Isi form modal dengan data dari server
-                        $('#edit_nama_member').val(data.nama_member);
-                        $('#edit_no_hp').val(data.no_hp);
-                        $('#edit_alamat').val(data.alamat);
-                        $('#edit_toko').val(data.id_toko);
-
-                        // Muat level harga berdasarkan id_toko yang sudah dipilih tanpa reset
-                        loadLevelHargaEditWithoutReset(data.id_toko, data.level_info);
-
-                        // Tampilkan modal
-                        $('#editMemberModal').modal(
-                            'show'); // Tampilkan modal jika belum otomatis
-                    },
-                    error: function(xhr) {
-                        console.log('Error:', xhr);
-                    }
+                let getDataRest = await renderAPI(
+                    'GET',
+                    `member/detail/${id}`, {}
+                ).then(function(response) {
+                    return response;
+                }).catch(function(error) {
+                    return error.response;
                 });
-            }
-        });
 
-        function selectFormat(isParameter, isPlaceholder, isDisabled = true) {
-            if (!$(isParameter).find('option[value=""]').length) {
-                $(isParameter).prepend('<option value=""></option>');
-            }
+                if (!getDataRest || getDataRest.status !== 200) {
+                    $('#detailMemberContent').html('<div class="p-3 text-danger">Gagal memuat data.</div>');
+                    return;
+                }
 
-            $(isParameter).select2({
-                dropdownParent: $('#modal-form'),
-                disabled: isDisabled,
-                dropdownAutoWidth: true,
-                width: '100%',
-                placeholder: isPlaceholder,
-                allowClear: true,
+                const d = getDataRest.data?.data ?? {};
+                const kabProv = escapeHtml(d.kabupaten_provinsi ?? '-');
+                const splitIndex = kabProv.lastIndexOf(',');
+                const kab = splitIndex > -1 ? kabProv.slice(0, splitIndex).trim() : kabProv.trim();
+                const prov = splitIndex > -1 ? kabProv.slice(splitIndex + 1).trim() : '';
+                const domisiliAtas = prov ? `<strong>${escapeHtml(kab)}</strong>, <strong>${escapeHtml(prov)}</strong>` : `<strong>${escapeHtml(kab)}</strong>`;
+                const domisiliBawah = escapeHtml(d.kecamatan_desa ?? '-');
+
+                const ttlTempat = escapeHtml(d.tempat_lahir ?? '-');
+                const ttlTanggal = escapeHtml(d.tanggal_lahir ?? '-');
+                const ttlHtml = `${ttlTempat}${ttlTempat !== '-' ? ', ' : ''}${ttlTanggal}`;
+
+                const html = `
+                    <div class="card mb-3">
+                        <div class="card-header"><strong>Data Identitas Pribadi</strong></div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="text-muted" style="font-size: 12px;">Nama</div>
+                                    <div>${escapeHtml(d.nama ?? '-')}</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="text-muted" style="font-size: 12px;">NIK</div>
+                                    <div>${escapeHtml(d.nik ?? '-')}</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="text-muted" style="font-size: 12px;">Tempat, Tanggal Lahir</div>
+                                    <div>${ttlHtml}</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="text-muted" style="font-size: 12px;">Tahun Masuk LPK</div>
+                                    <div>${escapeHtml(d.tahun_masuk_lpk ?? '-')}</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="text-muted" style="font-size: 12px;">Jenis Kelamin</div>
+                                    <div>${escapeHtml(d.jenis_kelamin ?? '-')}</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="text-muted" style="font-size: 12px;">Agama</div>
+                                    <div>${escapeHtml(d.agama ?? '-')}</div>
+                                </div>
+                                <div class="col-md-6 mb-0">
+                                    <div class="text-muted" style="font-size: 12px;">Status Pernikahan</div>
+                                    <div>${escapeHtml(d.status_pernikahan ?? '-')}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header"><strong>Data Kontak & Alamat</strong></div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="text-muted" style="font-size: 12px;">No. HP</div>
+                                    <div>${escapeHtml(d.no_hp ?? '-')}</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="text-muted" style="font-size: 12px;">Email</div>
+                                    <div>${escapeHtml(d.email ?? '-')}</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="text-muted" style="font-size: 12px;">Domisili</div>
+                                    <div>${domisiliAtas}</div>
+                                    <div class="text-muted" style="font-size: 12px; line-height: 1.2;">${domisiliBawah}</div>
+                                </div>
+                                <div class="col-md-6 mb-0">
+                                    <div class="text-muted" style="font-size: 12px;">Alamat</div>
+                                    <div>${escapeHtml(d.alamat_domisili ?? '-')}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-0">
+                        <div class="card-header"><strong>Data Pendidikan</strong></div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="text-muted" style="font-size: 12px;">Pendidikan Terakhir</div>
+                                    <div>${escapeHtml(d.pendidikan_terakhir ?? '-')}</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="text-muted" style="font-size: 12px;">Jurusan</div>
+                                    <div>${escapeHtml(d.jurusan ?? '-')}</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="text-muted" style="font-size: 12px;">Nama Sekolah/Universitas</div>
+                                    <div>${escapeHtml(d.nama_sekolah ?? '-')}</div>
+                                </div>
+                                <div class="col-md-6 mb-0">
+                                    <div class="text-muted" style="font-size: 12px;">Tahun Lulus</div>
+                                    <div>${escapeHtml(d.tahun_lulus ?? '-')}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                $('#detailMemberContent').html(html);
             });
         }
 
@@ -569,7 +873,175 @@
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
             await deleteData();
-            await selectFormat('#id_toko', 'Pilih Toko', false);
+            await detailData();
+            await initIndonesiaChain();
+        }
+
+        async function fetchJSON(url) {
+            try {
+                const res = await renderAPI('GET', url, {});
+                return res?.data ?? [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        async function initIndonesiaChain() {
+            async function initIndonesiaChainForModal($modal, selected = {}) {
+                const $prov = $modal.find('.province_code').first();
+                const $city = $modal.find('.city_code').first();
+                const $dist = $modal.find('.district_code').first();
+                const $vill = $modal.find('.village_code').first();
+
+                if (!$prov.length || !$city.length || !$dist.length || !$vill.length) return;
+
+                if (!$prov.hasClass('select2-hidden-accessible')) {
+                    $prov.select2({
+                        dropdownParent: $modal,
+                        placeholder: '~Pilih Provinsi~',
+                        allowClear: true,
+                        width: '100%',
+                    });
+                }
+                if (!$city.hasClass('select2-hidden-accessible')) {
+                    $city.select2({
+                        dropdownParent: $modal,
+                        placeholder: '~Pilih Kabupaten/Kota~',
+                        allowClear: true,
+                        width: '100%',
+                    });
+                }
+                if (!$dist.hasClass('select2-hidden-accessible')) {
+                    $dist.select2({
+                        dropdownParent: $modal,
+                        placeholder: '~Pilih Kecamatan~',
+                        allowClear: true,
+                        width: '100%',
+                    });
+                }
+                if (!$vill.hasClass('select2-hidden-accessible')) {
+                    $vill.select2({
+                        dropdownParent: $modal,
+                        placeholder: '~Pilih Desa/Kelurahan~',
+                        allowClear: true,
+                        width: '100%',
+                    });
+                }
+
+                $prov.prop('disabled', true).empty().append('<option value="">Memuat...</option>').val(null).trigger('change.select2');
+
+                const resetDependent = () => {
+                    $city.prop('disabled', true).empty().append('<option value=""></option>').val(null).trigger('change.select2');
+                    $dist.prop('disabled', true).empty().append('<option value=""></option>').val(null).trigger('change.select2');
+                    $vill.prop('disabled', true).empty().append('<option value=""></option>').val(null).trigger('change.select2');
+                };
+
+                const setCities = async (provinceCode, citySelected = null) => {
+                    $city.empty().append('<option value=""></option>').val(null).trigger('change.select2');
+                    $dist.empty().append('<option value=""></option>').val(null).trigger('change.select2');
+                    $vill.empty().append('<option value=""></option>').val(null).trigger('change.select2');
+
+                    $city.prop('disabled', !provinceCode).trigger('change.select2');
+                    $dist.prop('disabled', true).trigger('change.select2');
+                    $vill.prop('disabled', true).trigger('change.select2');
+
+                    if (!provinceCode) return;
+                    const cities = await fetchJSON(`{{ url('/admin/indonesia/regencies') }}/${provinceCode}`);
+                    cities.forEach(c => $city.append(`<option value="${c.id}">${c.name}</option>`));
+                    if (citySelected) {
+                        $city.val(citySelected).trigger('change.select2');
+                    }
+                };
+
+                const setDistricts = async (cityCode, districtSelected = null) => {
+                    $dist.empty().append('<option value=""></option>').val(null).trigger('change.select2');
+                    $vill.empty().append('<option value=""></option>').val(null).trigger('change.select2');
+
+                    $dist.prop('disabled', !cityCode).trigger('change.select2');
+                    $vill.prop('disabled', true).trigger('change.select2');
+
+                    if (!cityCode) return;
+                    const districts = await fetchJSON(`{{ url('/admin/indonesia/districts') }}/${cityCode}`);
+                    districts.forEach(d => $dist.append(`<option value="${d.id}">${d.name}</option>`));
+                    if (districtSelected) {
+                        $dist.val(districtSelected).trigger('change.select2');
+                    }
+                };
+
+                const setVillages = async (districtCode, villageSelected = null) => {
+                    $vill.empty().append('<option value=""></option>').val(null).trigger('change.select2');
+                    $vill.prop('disabled', !districtCode).trigger('change.select2');
+                    if (!districtCode) return;
+                    const villages = await fetchJSON(`{{ url('/admin/indonesia/villages') }}/${districtCode}`);
+                    villages.forEach(v => $vill.append(`<option value="${v.id}">${v.name}</option>`));
+                    if (villageSelected) {
+                        $vill.val(villageSelected).trigger('change.select2');
+                    }
+                };
+
+                resetDependent();
+
+                const provinces = await fetchJSON('{{ url('/admin/indonesia/provinces') }}');
+                $prov.empty().append('<option value=""></option>');
+                provinces.forEach(p => $prov.append(`<option value="${p.id}">${p.name}</option>`));
+                $prov.prop('disabled', false).trigger('change.select2');
+
+                const provinceSelected = selected.province_code ?? null;
+                const citySelected = selected.city_code ?? null;
+                const districtSelected = selected.district_code ?? null;
+                const villageSelected = selected.village_code ?? null;
+
+                $prov.off('change.indonesia').on('change.indonesia', async function() {
+                    const code = $(this).val();
+                    await setCities(code, null);
+                });
+                $city.off('change.indonesia').on('change.indonesia', async function() {
+                    const code = $(this).val();
+                    await setDistricts(code, null);
+                });
+                $dist.off('change.indonesia').on('change.indonesia', async function() {
+                    const code = $(this).val();
+                    await setVillages(code, null);
+                });
+
+                $prov.val(provinceSelected).trigger('change.select2');
+                if (provinceSelected) {
+                    await setCities(provinceSelected, citySelected);
+                }
+                if (citySelected) {
+                    await setDistricts(citySelected, districtSelected);
+                }
+                if (districtSelected) {
+                    await setVillages(districtSelected, villageSelected);
+                }
+            }
+
+            await initIndonesiaChainForModal($('#modal-form'));
+
+            const bindEditModalIndonesia = ($modal) => {
+                if ($modal.data('indonesia-bound')) return;
+                $modal.data('indonesia-bound', true);
+
+                $modal.on('show.bs.modal', async function() {
+                    const $m = $(this);
+                    await initIndonesiaChainForModal($m, {
+                        province_code: $m.data('province') || null,
+                        city_code: $m.data('city') || null,
+                        district_code: $m.data('district') || null,
+                        village_code: $m.data('village') || null,
+                    });
+                });
+            };
+
+            $('.edit-member-modal').each(function() {
+                bindEditModalIndonesia($(this));
+            });
+
+            $(document)
+                .off('shown.bs.modal.indonesiaEdit')
+                .on('shown.bs.modal.indonesiaEdit', '.edit-member-modal', function() {
+                    bindEditModalIndonesia($(this));
+                });
         }
     </script>
 @endsection
