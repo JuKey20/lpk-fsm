@@ -888,12 +888,26 @@
 
         async function initIndonesiaChain() {
             async function initIndonesiaChainForModal($modal, selected = {}) {
+                if ($modal.data('indonesiaInitRunning')) return;
+                $modal.data('indonesiaInitRunning', true);
+
+                console.debug('[member] initIndonesiaChainForModal', $modal.attr('id'), selected);
+
                 const $prov = $modal.find('.province_code').first();
                 const $city = $modal.find('.city_code').first();
                 const $dist = $modal.find('.district_code').first();
                 const $vill = $modal.find('.village_code').first();
 
-                if (!$prov.length || !$city.length || !$dist.length || !$vill.length) return;
+                if (!$prov.length || !$city.length || !$dist.length || !$vill.length) {
+                    $modal.data('indonesiaInitRunning', false);
+                    return;
+                }
+
+                const normalizeCode = (value) => {
+                    if (value === undefined || value === null) return null;
+                    const str = String(value).trim();
+                    return str === '' ? null : str;
+                };
 
                 if (!$prov.hasClass('select2-hidden-accessible')) {
                     $prov.select2({
@@ -928,54 +942,54 @@
                     });
                 }
 
-                $prov.prop('disabled', true).empty().append('<option value="">Memuat...</option>').val(null).trigger('change.select2');
+                $prov.prop('disabled', true).empty().append('<option value="">Memuat...</option>').val(null).trigger('change');
 
                 const resetDependent = () => {
-                    $city.prop('disabled', true).empty().append('<option value=""></option>').val(null).trigger('change.select2');
-                    $dist.prop('disabled', true).empty().append('<option value=""></option>').val(null).trigger('change.select2');
-                    $vill.prop('disabled', true).empty().append('<option value=""></option>').val(null).trigger('change.select2');
+                    $city.prop('disabled', true).empty().append('<option value=""></option>').val(null).trigger('change');
+                    $dist.prop('disabled', true).empty().append('<option value=""></option>').val(null).trigger('change');
+                    $vill.prop('disabled', true).empty().append('<option value=""></option>').val(null).trigger('change');
                 };
 
                 const setCities = async (provinceCode, citySelected = null) => {
-                    $city.empty().append('<option value=""></option>').val(null).trigger('change.select2');
-                    $dist.empty().append('<option value=""></option>').val(null).trigger('change.select2');
-                    $vill.empty().append('<option value=""></option>').val(null).trigger('change.select2');
+                    $city.empty().append('<option value=""></option>').val(null).trigger('change');
+                    $dist.empty().append('<option value=""></option>').val(null).trigger('change');
+                    $vill.empty().append('<option value=""></option>').val(null).trigger('change');
 
-                    $city.prop('disabled', !provinceCode).trigger('change.select2');
-                    $dist.prop('disabled', true).trigger('change.select2');
-                    $vill.prop('disabled', true).trigger('change.select2');
+                    $city.prop('disabled', !provinceCode).trigger('change');
+                    $dist.prop('disabled', true).trigger('change');
+                    $vill.prop('disabled', true).trigger('change');
 
                     if (!provinceCode) return;
                     const cities = await fetchJSON(`{{ url('/admin/indonesia/regencies') }}/${provinceCode}`);
                     cities.forEach(c => $city.append(`<option value="${c.id}">${c.name}</option>`));
                     if (citySelected) {
-                        $city.val(citySelected).trigger('change.select2');
+                        $city.val(citySelected).trigger('change');
                     }
                 };
 
                 const setDistricts = async (cityCode, districtSelected = null) => {
-                    $dist.empty().append('<option value=""></option>').val(null).trigger('change.select2');
-                    $vill.empty().append('<option value=""></option>').val(null).trigger('change.select2');
+                    $dist.empty().append('<option value=""></option>').val(null).trigger('change');
+                    $vill.empty().append('<option value=""></option>').val(null).trigger('change');
 
-                    $dist.prop('disabled', !cityCode).trigger('change.select2');
-                    $vill.prop('disabled', true).trigger('change.select2');
+                    $dist.prop('disabled', !cityCode).trigger('change');
+                    $vill.prop('disabled', true).trigger('change');
 
                     if (!cityCode) return;
                     const districts = await fetchJSON(`{{ url('/admin/indonesia/districts') }}/${cityCode}`);
                     districts.forEach(d => $dist.append(`<option value="${d.id}">${d.name}</option>`));
                     if (districtSelected) {
-                        $dist.val(districtSelected).trigger('change.select2');
+                        $dist.val(districtSelected).trigger('change');
                     }
                 };
 
                 const setVillages = async (districtCode, villageSelected = null) => {
-                    $vill.empty().append('<option value=""></option>').val(null).trigger('change.select2');
-                    $vill.prop('disabled', !districtCode).trigger('change.select2');
+                    $vill.empty().append('<option value=""></option>').val(null).trigger('change');
+                    $vill.prop('disabled', !districtCode).trigger('change');
                     if (!districtCode) return;
                     const villages = await fetchJSON(`{{ url('/admin/indonesia/villages') }}/${districtCode}`);
                     villages.forEach(v => $vill.append(`<option value="${v.id}">${v.name}</option>`));
                     if (villageSelected) {
-                        $vill.val(villageSelected).trigger('change.select2');
+                        $vill.val(villageSelected).trigger('change');
                     }
                 };
 
@@ -984,27 +998,32 @@
                 const provinces = await fetchJSON('{{ url('/admin/indonesia/provinces') }}');
                 $prov.empty().append('<option value=""></option>');
                 provinces.forEach(p => $prov.append(`<option value="${p.id}">${p.name}</option>`));
-                $prov.prop('disabled', false).trigger('change.select2');
+                $prov.prop('disabled', false).trigger('change');
 
-                const provinceSelected = selected.province_code ?? null;
-                const citySelected = selected.city_code ?? null;
-                const districtSelected = selected.district_code ?? null;
-                const villageSelected = selected.village_code ?? null;
+                const provinceSelected = normalizeCode(selected.province_code);
+                const citySelected = normalizeCode(selected.city_code);
+                const districtSelected = normalizeCode(selected.district_code);
+                const villageSelected = normalizeCode(selected.village_code);
+
+                let isInitializing = true;
 
                 $prov.off('change.indonesia').on('change.indonesia', async function() {
+                    if (isInitializing) return;
                     const code = $(this).val();
                     await setCities(code, null);
                 });
                 $city.off('change.indonesia').on('change.indonesia', async function() {
+                    if (isInitializing) return;
                     const code = $(this).val();
                     await setDistricts(code, null);
                 });
                 $dist.off('change.indonesia').on('change.indonesia', async function() {
+                    if (isInitializing) return;
                     const code = $(this).val();
                     await setVillages(code, null);
                 });
 
-                $prov.val(provinceSelected).trigger('change.select2');
+                $prov.val(provinceSelected).trigger('change');
                 if (provinceSelected) {
                     await setCities(provinceSelected, citySelected);
                 }
@@ -1014,33 +1033,39 @@
                 if (districtSelected) {
                     await setVillages(districtSelected, villageSelected);
                 }
+
+                isInitializing = false;
+                $modal.data('indonesiaInitRunning', false);
             }
 
-            await initIndonesiaChainForModal($('#modal-form'));
-
-            const bindEditModalIndonesia = ($modal) => {
-                if ($modal.data('indonesia-bound')) return;
-                $modal.data('indonesia-bound', true);
-
-                $modal.on('show.bs.modal', async function() {
-                    const $m = $(this);
-                    await initIndonesiaChainForModal($m, {
-                        province_code: $m.data('province') || null,
-                        city_code: $m.data('city') || null,
-                        district_code: $m.data('district') || null,
-                        village_code: $m.data('village') || null,
-                    });
-                });
-            };
-
-            $('.edit-member-modal').each(function() {
-                bindEditModalIndonesia($(this));
+            const getSelectedFromModal = ($m) => ({
+                province_code: $m.data('province') || null,
+                city_code: $m.data('city') || null,
+                district_code: $m.data('district') || null,
+                village_code: $m.data('village') || null,
             });
 
             $(document)
-                .off('shown.bs.modal.indonesiaEdit')
-                .on('shown.bs.modal.indonesiaEdit', '.edit-member-modal', function() {
-                    bindEditModalIndonesia($(this));
+                .off('shown.bs.modal.indonesiaAdd', '#modal-form')
+                .on('shown.bs.modal.indonesiaAdd', '#modal-form', async function() {
+                    await initIndonesiaChainForModal($(this));
+                });
+
+            $(document)
+                .off('shown.bs.modal.indonesiaEdit', '.edit-member-modal')
+                .on('shown.bs.modal.indonesiaEdit', '.edit-member-modal', async function() {
+                    const $m = $(this);
+                    await initIndonesiaChainForModal($m, getSelectedFromModal($m));
+                });
+
+            $(document)
+                .off('click.indonesiaEditInit', '.edit-data')
+                .on('click.indonesiaEditInit', '.edit-data', async function() {
+                    const target = $(this).attr('data-target');
+                    if (!target) return;
+                    const $m = $(target);
+                    if (!$m.length) return;
+                    await initIndonesiaChainForModal($m, getSelectedFromModal($m));
                 });
         }
     </script>

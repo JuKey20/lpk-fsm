@@ -16,7 +16,6 @@ class UserSeeder extends Seeder
     {
         User::create([
             "id" => 1,
-            "id_toko" => 1,
             "id_level" => 1,
             "nama" => "Super Admin",
             "username" => "admin",
@@ -28,7 +27,6 @@ class UserSeeder extends Seeder
 
         User::create([
             "id" => 2,
-            "id_toko" => 2,
             "id_level" => 3,
             "nama" => "jSk_adminbhn",
             "username" => "adminbhn",
@@ -40,7 +38,6 @@ class UserSeeder extends Seeder
 
         User::create([
             "id" => 3,
-            "id_toko" => 3,
             "id_level" => 3,
             "nama" => "dls_admin",
             "username" => "admindls",
@@ -52,7 +49,6 @@ class UserSeeder extends Seeder
 
         User::create([
             "id" => 4,
-            "id_toko" => 4,
             "id_level" => 3,
             "nama" => "gps_admingps",
             "username" => "admingps",
