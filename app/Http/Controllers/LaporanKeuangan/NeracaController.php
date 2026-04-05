@@ -5,7 +5,6 @@ namespace App\Http\Controllers\LaporanKeuangan;
 use App\Http\Controllers\Controller;
 use App\Models\DetailPengeluaran;
 use App\Models\Hutang;
-use App\Models\Mutasi;
 use App\Models\Pengeluaran;
 use App\Models\Pemasukan;
 use App\Models\Piutang;
@@ -14,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class NeracaController extends Controller
 {
@@ -54,74 +54,37 @@ class NeracaController extends Controller
                     $endOfMonth = Carbon::create($year, $m, 1)->endOfMonth()->endOfDay();
 
                     $pemasukanIn = (int) Pemasukan::whereBetween('tanggal', [$startOfYear, $endOfMonth])->sum('nilai');
-                    $pengeluaranOut = (int) Pengeluaran::whereBetween('tanggal', [$startOfYear, $endOfMonth])->sum('nilai');
+                    $pengeluaranQuery = Pengeluaran::whereBetween('tanggal', [$startOfYear, $endOfMonth]);
+                    if (Schema::hasColumn('pengeluaran', 'is_hutang')) {
+                        $pengeluaranQuery->where(function ($q) {
+                            $q->whereNull('is_hutang')->orWhere('is_hutang', '!=', 1);
+                        });
+                    }
+                    $pengeluaranOut = (int) $pengeluaranQuery->sum('nilai');
                     $pengeluaranBayarHutangOut = (int) DetailPengeluaran::whereBetween('created_at', [$startOfYear, $endOfMonth])
                         ->sum('nilai');
 
-                $piutangOutBesar = (int) Piutang::whereBetween('tanggal', [$startOfYear, $endOfMonth])->where('id_toko', 1)->sum('nilai');
-                $piutangOutKecil = (int) Piutang::whereBetween('tanggal', [$startOfYear, $endOfMonth])->where('id_toko', '!=', 1)->sum('nilai');
-                $piutangInBesar = (int) DB::table('detail_piutang')
-                    ->join('piutang', 'detail_piutang.id_piutang', '=', 'piutang.id')
-                    ->whereBetween('detail_piutang.created_at', [$startOfYear, $endOfMonth])
-                    ->where('piutang.id_toko', 1)
-                    ->sum('detail_piutang.nilai');
-                $piutangInKecil = (int) DB::table('detail_piutang')
-                    ->join('piutang', 'detail_piutang.id_piutang', '=', 'piutang.id')
-                    ->whereBetween('detail_piutang.created_at', [$startOfYear, $endOfMonth])
-                    ->where('piutang.id_toko', '!=', 1)
-                    ->sum('detail_piutang.nilai');
+                    $piutangOut = (int) Piutang::whereBetween('tanggal', [$startOfYear, $endOfMonth])->sum('nilai');
+                    $piutangIn = (int) DB::table('detail_piutang')
+                        ->join('piutang', 'detail_piutang.id_piutang', '=', 'piutang.id')
+                        ->whereBetween('detail_piutang.created_at', [$startOfYear, $endOfMonth])
+                        ->sum('detail_piutang.nilai');
 
-                $hutangInBesar = (int) Hutang::whereBetween('tanggal', [$startOfYear, $endOfMonth])->where('id_toko', 1)->sum('nilai');
-                $hutangInKecil = (int) Hutang::whereBetween('tanggal', [$startOfYear, $endOfMonth])->where('id_toko', '!=', 1)->sum('nilai');
-                $hutangOutBesar = (int) DB::table('detail_hutang')
-                    ->join('hutang', 'detail_hutang.id_hutang', '=', 'hutang.id')
-                    ->whereBetween('detail_hutang.created_at', [$startOfYear, $endOfMonth])
-                    ->where('hutang.id_toko', 1)
-                    ->sum('detail_hutang.nilai');
-                $hutangOutKecil = (int) DB::table('detail_hutang')
-                    ->join('hutang', 'detail_hutang.id_hutang', '=', 'hutang.id')
-                    ->whereBetween('detail_hutang.created_at', [$startOfYear, $endOfMonth])
-                    ->where('hutang.id_toko', '!=', 1)
-                    ->sum('detail_hutang.nilai');
+                    $hutangIn = (int) Hutang::whereBetween('tanggal', [$startOfYear, $endOfMonth])->sum('nilai');
+                    $hutangOut = (int) DB::table('detail_hutang')
+                        ->join('hutang', 'detail_hutang.id_hutang', '=', 'hutang.id')
+                        ->whereBetween('detail_hutang.created_at', [$startOfYear, $endOfMonth])
+                        ->sum('detail_hutang.nilai');
 
-                $mutasi = Mutasi::whereBetween('created_at', [$startOfYear, $endOfMonth])->get(['id_toko_pengirim', 'id_toko_penerima', 'nilai']);
-                $mutasiKasBesarIn = 0;
-                $mutasiKasBesarOut = 0;
-                $mutasiKasKecilIn = 0;
-                $mutasiKasKecilOut = 0;
-                foreach ($mutasi as $row) {
-                    $nilai = (int)($row->nilai ?? 0);
-                    if ((string)$row->id_toko_pengirim === '1') {
-                        $mutasiKasBesarOut += $nilai;
-                    } else {
-                        $mutasiKasKecilOut += $nilai;
-                    }
-                    if ((string)$row->id_toko_penerima === '1') {
-                        $mutasiKasBesarIn += $nilai;
-                    } else {
-                        $mutasiKasKecilIn += $nilai;
-                    }
-                }
+                    $kasBesar = $pemasukanIn
+                        + $hutangIn
+                        + $piutangIn
+                        - $pengeluaranOut
+                        - $pengeluaranBayarHutangOut
+                        - $hutangOut
+                        - $piutangOut;
 
-                $kasBesar = $pemasukanIn
-                    + $hutangInBesar
-                    + $piutangInBesar
-                    + $mutasiKasBesarIn
-                    - $pengeluaranOut
-                    - $pengeluaranBayarHutangOut
-                    - $hutangOutBesar
-                    - $piutangOutBesar
-                    - $mutasiKasBesarOut;
-
-                $kasKecil = $hutangInKecil
-                    + $piutangInKecil
-                    + $mutasiKasKecilIn
-                    - $hutangOutKecil
-                    - $piutangOutKecil
-                    - $mutasiKasKecilOut;
-
-                $kasBesar += $kasKecil;
-                $kasKecil = 0;
+                    $kasKecil = 0;
 
                 $asetPeralatanBesar = (int) Pengeluaran::whereBetween('tanggal', [$startOfYear, $endOfMonth])->where('is_asset', 'Asset Peralatan Besar')->sum('nilai');
                 $asetPeralatanKecil = (int) Pengeluaran::whereBetween('tanggal', [$startOfYear, $endOfMonth])->where('is_asset', 'Asset Peralatan Kecil')->sum('nilai');

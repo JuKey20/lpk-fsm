@@ -14,11 +14,6 @@ class Piutang extends Model
     protected $guarded = [''];
     public $primaryKey = 'id';
 
-    public function toko()
-    {
-        return $this->belongsTo(Toko::class, 'id_toko', 'id');
-    }
-
     public function jenis_piutang()
     {
         return $this->belongsTo(JenisPiutang::class,'id_jenis', 'id');
