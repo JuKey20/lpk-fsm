@@ -42,29 +42,17 @@ class HutangController extends Controller
 
         $query = Hutang::query();
 
-        $query->with(['toko', 'jenis_hutang'])->orderBy('id', $meta['orderBy']);
+        $query->with(['jenis_hutang'])->orderBy('id', $meta['orderBy']);
 
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
 
             $query->where(function ($query) use ($searchTerm) {
                 $query->orWhereRaw("LOWER(keterangan) LIKE ?", ["%$searchTerm%"]);
-                $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
-                    $subquery->whereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
-                });
                 $query->orWhereHas('jenis_hutang', function ($subquery) use ($searchTerm) {
                     $subquery->whereRaw("LOWER(nama_jenis) LIKE ?", ["%$searchTerm%"]);
                 });
             });
-        }
-
-        if ($request->has('toko')) {
-            $idToko = $request->input('toko');
-            if ($idToko != 1) {
-                $query->where(function ($q) use ($idToko) {
-                    $q->where('toko', $idToko);
-                });
-            }
         }
 
         if ($request->has('jenis')) {
@@ -126,15 +114,14 @@ class HutangController extends Controller
 
             return [
                 'id' => $item['id'],
-                'id_toko' => $item['toko'] ? $item['toko']->id : null,
-                'nama_toko' => $item['toko'] ? $item['toko']->singkatan : null,
                 'nama_jenis' => $item['jenis_hutang']->nama_jenis ?? '-',
                 'keterangan' => $item->keterangan,
                 'status' => $item->status,
                 'jangka' => $jangka,
-                'tanggal' => Carbon::parse($item['tanggal'])->format('d-m-Y'),
+                'tanggal' => Carbon::parse($item['tanggal'])->locale('id')->translatedFormat('d F Y'),
                 'nilai' => 'Rp. ' . number_format($item->nilai ?? 0, 0, '.', '.'),
-                'sisa_hutang' => 'Rp. ' . number_format($item->nilai - DetailHutang::where('id_hutang', $item->id)->sum('nilai'), 0, '.', '.')
+                'sisa_hutang' => 'Rp. ' . number_format($item->nilai - DetailHutang::where('id_hutang', $item->id)->sum('nilai'), 0, '.', '.'),
+                'can_delete' => true,
             ];
         });
 
@@ -152,7 +139,6 @@ class HutangController extends Controller
     public function store(Request $request)
     {
         $validation = [
-            'id_toko' => 'required|exists:toko,id',
             'id_jenis' => 'nullable|exists:jenis_hutang,id',
             'keterangan' => 'required|string',
             'nilai' => 'required|numeric',
@@ -176,7 +162,6 @@ class HutangController extends Controller
             }
 
             Hutang::create([
-                'id_toko' => $validatedData['id_toko'],
                 'id_jenis' => $id_jenis,
                 'keterangan' => $validatedData['keterangan'],
                 'nilai' => $validatedData['nilai'],
@@ -201,7 +186,7 @@ class HutangController extends Controller
     public function detail(string $id)
     {
         try {
-            $hutang = Hutang::with(['toko', 'jenis_hutang'])->findOrFail($id);
+            $hutang = Hutang::with(['jenis_hutang'])->findOrFail($id);
             $detailPembayaran = DetailHutang::where('id_hutang', $id)
                 ->orderBy('created_at', 'desc')
                 ->get()
@@ -221,13 +206,12 @@ class HutangController extends Controller
                 'data' => [
                     'hutang' => [
                         'id' => $hutang->id,
-                        'nama_toko' => $hutang->toko->nama_toko,
                         'keterangan' => $hutang->keterangan ?? '-',
                         'nama_jenis' => $hutang->jenis_hutang->nama_jenis ?? '-',
                         'nilai' => 'Rp. ' . number_format($hutang->nilai, 0, '.', '.'),
                         'status' => $hutang->status,
                         'jangka' => $hutang->jangka,
-                        'tanggal' => Carbon::parse($hutang->tanggal)->format('d-m-Y'),
+                        'tanggal' => Carbon::parse($hutang->tanggal)->locale('id')->translatedFormat('d F Y'),
                     ],
                     'detail_pembayaran' => $detailPembayaran,
                     'total_pembayaran' => 'Rp. ' . number_format($totalPembayaran, 0, '.', '.'),

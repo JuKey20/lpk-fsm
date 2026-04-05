@@ -30,8 +30,11 @@
                                 <div class="col-12 col-md-6">
                                     <div class="row align-items-center">
                                         <div class="col-6 col-lg-4 col-xl-4 mb-2">
-                                            <button class="btn btn-primary text-white add-data w-100" data-container="body"
-                                                data-toggle="tooltip" data-placement="top" title="Tambah Piutang">
+                                            <button type="button"
+                                                class="btn btn-primary text-white add-data w-100" data-container="body"
+                                                data-toggle="modal" data-target="#modal-form"
+                                                data-bs-toggle="modal" data-bs-target="#modal-form"
+                                                data-placement="top" title="Tambah Piutang">
                                                 <i class="fa fa-plus-circle"></i> Tambah
                                             </button>
                                         </div>
@@ -68,11 +71,6 @@
                                         <input class="form-control" type="text" id="daterange" name="daterange"
                                             placeholder="Pilih rentang tanggal">
                                     </div>
-                                    @if (auth()->user()->id_toko == 1)
-                                        <div class="col-12 col-xl-2 col-lg-2 mb-2">
-                                            <select class="form-control select2" id="toko" name="toko"></select>
-                                        </div>
-                                    @endif
                                     <div class="col-12 col-xl-2 col-lg-2 mb-2">
                                         <select class="form-control select2" id="jenis" name="jenis"></select>
                                     </div>
@@ -104,7 +102,6 @@
                                                 <th class="text-wrap align-top">Tanggal</th>
                                                 <th class="text-wrap align-top">Status</th>
                                                 <th class="text-wrap align-top">Jenis</th>
-                                                <th class="text-wrap align-top">Nama Toko</th>
                                                 <th class="text-wrap align-top">Keterangan</th>
                                                 <th class="text-wrap align-top">Jangka Piutang</th>
                                                 <th class="text-right text-wrap align-top">Nilai</th>
@@ -146,7 +143,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modal-title">Tambah Data Piutang</h5>
-                    <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal"
+                    <button type="button" class="btn-close reset-all close" data-dismiss="modal" data-bs-dismiss="modal"
                         aria-label="Close"><i class="fa fa-xmark"></i></button>
                 </div>
                 <div class="modal-body">
@@ -203,7 +200,8 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close"><i
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal"
+                        aria-label="Close"><i
                             class="fa fa-circle-xmark mr-1"></i>Tutup</button>
                     <button type="submit" class="btn btn-primary" id="btnSimpan" form="formTambahData"><i
                             class="fa fa-save mr-1"></i>Simpan</button>
@@ -218,7 +216,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="editModalLabel">Edit Nilai</h5>
-                    <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal"
+                    <button type="button" class="btn-close reset-all close" data-dismiss="modal" data-bs-dismiss="modal"
                         aria-label="Close"><i class="fa fa-xmark"></i></button>
                 </div>
                 <div class="modal-body">
@@ -240,7 +238,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close"><i
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal"
+                        aria-label="Close"><i
                             class="fa fa-circle-xmark mr-1"></i>Tutup</button>
                     <button type="button" class="btn btn-primary" id="save-edit"><i
                             class="fa fa-save mr-1"></i>Simpan</button>
@@ -255,7 +254,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="detailModalLabel">Detail Nilai</h5>
-                    <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal"
+                    <button type="button" class="btn-close reset-all close" data-dismiss="modal" data-bs-dismiss="modal"
                         aria-label="Close"><i class="fa fa-xmark"></i></button>
                 </div>
                 <div class="modal-body">
@@ -270,7 +269,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close"><i
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal"
+                        aria-label="Close"><i
                             class="fa fa-circle-xmark mr-1"></i>Tutup</button>
                 </div>
             </div>
@@ -295,21 +295,15 @@
         let defaultSearch = '';
         let customFilter = {};
         let selectOptions = [{
-                id: '#toko',
-                isUrl: '{{ route('master.toko') }}',
-                placeholder: 'Pilih Nama Toko',
-            }, {
-                id: '#jenis',
-                isUrl: '{{ route('master.jenispiutang') }}',
-                placeholder: 'Pilih Jenis Piutang',
-            },
-            {
-                id: '#id_jenis',
-                isUrl: '{{ route('master.jenispiutang') }}',
-                placeholder: 'Pilih Jenis Piutang',
-                isModal: '#modal-form'
-            }
-        ];
+            id: '#jenis',
+            isUrl: '{{ route('master.jenispiutang') }}',
+            placeholder: 'Pilih Jenis Piutang',
+        }, {
+            id: '#id_jenis',
+            isUrl: '{{ route('master.jenispiutang') }}',
+            placeholder: 'Pilih Jenis Piutang',
+            isModal: '#modal-form'
+        }];
 
         async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
             $('#listData').html(loadingData());
@@ -319,10 +313,6 @@
             if (customFilter['startDate'] && customFilter['endDate']) {
                 filterParams.startDate = customFilter['startDate'];
                 filterParams.endDate = customFilter['endDate'];
-            }
-
-            if (customFilter['toko']) {
-                filterParams.toko = customFilter['toko'];
             }
 
             if (customFilter['jenis']) {
@@ -340,7 +330,6 @@
                     limit: limit,
                     ascending: ascending,
                     search: search,
-                    id_toko: {{ auth()->user()->id_toko }},
                     ...filterParams
                 }
             ).then(function(response) {
@@ -383,8 +372,7 @@
                     </div>
                 </a>`;
 
-            let detail_button = (data.id_toko == {{ auth()->user()->id_toko }} && data.status == 1 || data
-                .status == 2) ? `
+            let detail_button = (data.status == 1 || data.status == 2) ? `
                 <a class="p-1 btn detail-data action_button"
                     data-container="body" data-toggle="tooltip" data-placement="top"
                     title="Detail ${title}" data="${elementData}">
@@ -394,7 +382,7 @@
                     </div>
                 </a>` : '';
 
-            let edit_button = (data.id_toko == {{ auth()->user()->id_toko }} && data.status == 1) ? `
+            let edit_button = (data.status == 1) ? `
                 <a class="p-1 btn edit-data action_button"
                     title="Edit ${title}" data="${elementData}">
                     <span class="text-dark">Bayar</span>
@@ -403,7 +391,7 @@
                     </div>
                 </a>` : '';
 
-            if (data.id_toko == {{ auth()->user()->id_toko }} && delete_button || edit_button || detail_button) {
+            if (data.can_delete && (delete_button || edit_button || detail_button)) {
                 action_buttons = `
                 <div class="d-flex justify-content-end">
                     ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
@@ -427,7 +415,6 @@
                 id: data?.id ?? '-',
                 tanggal: data?.tanggal ?? '-',
                 nama_jenis: data?.nama_jenis ?? '-',
-                nama_toko: data?.nama_toko ?? '-',
                 jangka: data?.jangka ?? '-',
                 keterangan: data?.keterangan ?? '-',
                 nilai: data?.nilai ?? 0,
@@ -453,7 +440,6 @@
                     <td class="${classCol}">${element.tanggal}</td>
                     <td class="${classCol}">${element.status}</td>
                     <td class="${classCol}">${element.nama_jenis}</td>
-                    <td class="${classCol}">${element.nama_toko}</td>
                     <td class="${classCol}">${element.keterangan}</td>
                     <td class="${classCol}">${element.jangka}</td>
                     <td class="${classCol} text-right">${element.nilai}</td>
@@ -464,7 +450,7 @@
 
             let totalRow = `
             <tr class="bg-primary">
-                <td class="${classCol}" colspan="6"></td>
+                <td class="${classCol}" colspan="5"></td>
                 <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Total</strong></td>
                 <td class="${classCol} text-right"><strong class="text-white" id="totalData">${total}</strong></td>
                 <td class="${classCol} text-right"><strong class="text-white" id="totalSisaData">${sisa}</strong></td>
@@ -525,11 +511,39 @@
             document.getElementById("jenisContainer").classList.remove("d-none");
         });
 
+        function showModal(selector) {
+            const el = document.querySelector(selector);
+            if (!el) return;
+
+            if (window.jQuery && window.jQuery.fn && typeof window.jQuery(el).modal === 'function') {
+                window.jQuery(selector).modal('show');
+                return;
+            }
+
+            if (window.bootstrap && window.bootstrap.Modal) {
+                window.bootstrap.Modal.getOrCreateInstance(el).show();
+            }
+        }
+
+        function hideModal(selector) {
+            const el = document.querySelector(selector);
+            if (!el) return;
+
+            if (window.jQuery && window.jQuery.fn && typeof window.jQuery(el).modal === 'function') {
+                window.jQuery(selector).modal('hide');
+                return;
+            }
+
+            if (window.bootstrap && window.bootstrap.Modal) {
+                window.bootstrap.Modal.getOrCreateInstance(el).hide();
+            }
+        }
+
         async function addData() {
             $(document).on("click", ".add-data", function() {
                 $("#modal-title").html(`Form Tambah ${title}`);
-                $("#modal-form").modal("show");
-                $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
+                showModal("#modal-form");
+                $("#formTambahData").find("input, select, textarea").val("").prop("checked", false).trigger("change");
                 $("#formTambahData").data("action-url", '{{ route('master.piutang.store') }}');
 
                 const now = new Date();
@@ -552,7 +566,6 @@
 
                 let formData = {
                     tanggal: $('#tanggal').val(),
-                    id_toko: '{{ auth()->user()->id_toko }}',
                     keterangan: $('#keterangan').val(),
                     jangka: $('#jangka').val(),
                     nilai: $('#nilai').val()
@@ -578,7 +591,7 @@
                                 defaultSearch, customFilter);
                         }, 500);
                         setTimeout(() => {
-                            $("#modal-form").modal("hide");
+                            hideModal("#modal-form");
                         }, 500);
                     } else {
                         notificationAlert("info", "Pemberitahuan", postData.data.message ||
@@ -651,7 +664,6 @@
                 customFilter = {
                     startDate: $("#daterange").val() != '' ? startDate : '',
                     endDate: $("#daterange").val() != '' ? endDate : '',
-                    toko: $("#toko").val() || '',
                     jenis: $("#jenis").val() || '',
                     status: $("#f_status").val() || '',
                 };
@@ -851,10 +863,6 @@
                         <div class="d-flex justify-content-between">
                             <strong>Keterangan:</strong>
                             <span>${data.keterangan}</span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <strong>Nama Toko:</strong>
-                            <span>${data.nama_toko}</span>
                         </div>
                         <div class="d-flex justify-content-between">
                             <strong>Nilai:</strong>
