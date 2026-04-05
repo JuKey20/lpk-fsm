@@ -29,14 +29,9 @@ class ArusKasService
         $year = $request->has('year') ? $request->year : Carbon::now()->year;
 
         // Get data from Pengeluaran model with its details
-        $pengeluaranQuery = Pengeluaran::with(['toko', 'jenis_pengeluaran', 'detail_pengeluaran'])
+        $pengeluaranQuery = Pengeluaran::with(['jenis_pengeluaran', 'detail_pengeluaran'])
             ->whereMonth('tanggal', $month)
             ->whereYear('tanggal', $year);
-
-        // Filter by id_toko if provided
-        if ($request->has('id_toko') && is_array($request->id_toko)) {
-            $pengeluaranQuery->whereIn('id_toko', $request->id_toko);
-        }
 
         $pengeluaranQuery->orderBy('id', $meta['orderBy']);
 
@@ -83,10 +78,6 @@ class ArusKasService
         $pemasukanQuery = Pemasukan::with('jenis_pemasukan')
             ->whereMonth('tanggal', $month)
             ->whereYear('tanggal', $year);
-
-        if ($request->has('id_toko') && is_array($request->id_toko)) {
-            $pemasukanQuery->whereIn('id_toko', $request->id_toko);
-        }
 
         $pemasukanQuery->orderBy('id', $meta['orderBy']);
 
@@ -176,7 +167,7 @@ class ArusKasService
             $mainRow = [
                 'id' => $pengeluaran->id,
                 'tgl' => Carbon::parse($pengeluaran->tanggal)->format('d-m-Y H:i:s'),
-                'subjek' => "Toko {$pengeluaran->toko->singkatan}",
+                'subjek' => 'Pengeluaran',
                 'kategori' => 'Pengeluaran ' . ($pengeluaran->jenis_pengeluaran ? $pengeluaran->jenis_pengeluaran->nama_jenis : ($pengeluaran->ket_hutang ?? 'Tidak Terkategori')),
                 'item' => $pengeluaran->nama_pengeluaran,
                 'jml' => 1,
@@ -184,9 +175,9 @@ class ArusKasService
                 'hst' => (int)$pengeluaran->nilai,
                 'nilai_transaksi' => (int)$pengeluaran->nilai,
                 'kas_kecil_in' => 0,
-                'kas_kecil_out' => $pengeluaran->is_hutang ? 0 : ($pengeluaran->toko->id != 1 ? (int)$pengeluaran->nilai : 0),
+                'kas_kecil_out' => 0,
                 'kas_besar_in' => 0,
-                'kas_besar_out' => $pengeluaran->is_hutang ? 0 : ($pengeluaran->toko->id == 1 ? (int)$pengeluaran->nilai : 0),
+                'kas_besar_out' => $pengeluaran->is_hutang ? 0 : (int)$pengeluaran->nilai,
                 'piutang_out' => 0,
                 'piutang_in' => 0,
                 'hutang_in' => $pengeluaran->is_hutang ? (int)$pengeluaran->nilai : 0,
@@ -204,7 +195,7 @@ class ArusKasService
                     $rows[] = [
                         'id' => $pengeluaran->id,
                         'tgl' => Carbon::parse($detail->created_at)->format('d-m-Y H:i:s'),
-                        'subjek' => "Toko {$pengeluaran->toko->singkatan}",
+                        'subjek' => 'Pengeluaran',
                         'kategori' => 'Pembayaran Hutang',
                         'item' => 'Pembayaran ' . $pengeluaran->nama_pengeluaran,
                         'jml' => 1,
@@ -212,9 +203,9 @@ class ArusKasService
                         'hst' => (int)$detail->nilai,
                         'nilai_transaksi' => (int)$detail->nilai,
                         'kas_kecil_in' => 0,
-                        'kas_kecil_out' => $pengeluaran->toko->id != 1 ? (int)$detail->nilai : 0,
+                        'kas_kecil_out' => 0,
                         'kas_besar_in' => 0,
-                        'kas_besar_out' => $pengeluaran->toko->id == 1 ? (int)$detail->nilai : 0,
+                        'kas_besar_out' => (int)$detail->nilai,
                         'piutang_out' => 0,
                         'piutang_in' => 0,
                         'hutang_in' => 0,
@@ -342,16 +333,16 @@ class ArusKasService
             return [
                 'id' => $pemasukan->id,
                 'tgl' => Carbon::parse($pemasukan->tanggal)->format('d-m-Y H:i:s'),
-                'subjek' => "Toko {$pemasukan->toko->singkatan}",
+                'subjek' => 'Pemasukan',
                 'kategori' => 'Pemasukan',
                 'item' => $pemasukan->nama_pemasukan,
                 'jml' => 1,
                 'sat' => 'Ls',
                 'hst' => (int)$pemasukan->nilai,
                 'nilai_transaksi' => (int)$pemasukan->nilai,
-                'kas_kecil_in' => $pemasukan->id_toko != 1 ? (int)$pemasukan->nilai : 0,
+                'kas_kecil_in' => 0,
                 'kas_kecil_out' => 0,
-                'kas_besar_in' => $pemasukan->id_toko == 1 ? (int)$pemasukan->nilai : 0,
+                'kas_besar_in' => (int)$pemasukan->nilai,
                 'kas_besar_out' => 0,
                 'piutang_in' => 0,
                 'piutang_out' => 0,

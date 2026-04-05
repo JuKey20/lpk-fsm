@@ -166,12 +166,6 @@
                                 <select class="form-control select2" id="id_jenis_pemasukan" name="id_jenis_pemasukan">
                                 </select>
                             </div>
-                            <div class="text-center font-weight-bold">Atau</div>
-                            <div class="form-group">
-                                <label for="nama_jenis">Jenis Pemasukan Baru <sup class="text-danger">**</sup></label>
-                                <input type="text" class="form-control" id="nama_jenis" name="nama_jenis"
-                                    placeholder="Masukkan jenis baru">
-                            </div>
                         </div>
                     </form>
                 </div>
@@ -400,41 +394,15 @@
         }
 
         function handleInput() {
-            const jenisSelect = $("#id_jenis_pemasukan");
-            const jenisBaruInput = document.getElementById("nama_jenis");
-            const jenisPemasukanContainer = document.getElementById("jenisPemasukanContainer");
-
-            function toggleInputs() {
-                if (jenisSelect.val()) {
-                    jenisBaruInput.disabled = true;
-                    jenisBaruInput.value = "";
-                } else {
-                    jenisBaruInput.disabled = false;
-                }
-            }
-
-            function toggleSelect() {
-                if (jenisBaruInput.value.trim() !== "") {
-                    jenisSelect.prop("disabled", true).val(null).trigger("change");
-                } else {
-                    jenisSelect.prop("disabled", false);
-                    if (jenisSelect.hasClass('select2-hidden-accessible')) {
-                        jenisSelect.trigger("change.select2");
-                    }
-                }
-            }
-
-            jenisSelect.on("change", toggleInputs);
-            jenisBaruInput.addEventListener("input", toggleSelect);
+            return;
         }
 
         $('#modal-form').on('hidden.bs.modal', function() {
-            document.getElementById("nama_jenis").value = "";
-            document.getElementById("nama_jenis").disabled = false;
-
             $('#id_jenis_pemasukan').prop("disabled", false).val(null).trigger("change");
-
-            document.getElementById("jenisPemasukanContainer").classList.remove("d-none");
+            const jenisPemasukanContainer = document.getElementById("jenisPemasukanContainer");
+            if (jenisPemasukanContainer) {
+                jenisPemasukanContainer.classList.remove("d-none");
+            }
         });
 
         function initJenisPemasukanSearchable() {
@@ -452,6 +420,16 @@
                     dropdownParent: $('#modal-form'),
                     placeholder: '~Pilih Jenis Pemasukan~',
                     allowClear: true,
+                    tags: true,
+                    createTag: function(params) {
+                        const term = (params.term || '').trim();
+                        if (term === '') return null;
+                        return {
+                            id: term,
+                            text: term,
+                            newTag: true,
+                        };
+                    },
                     width: '100%',
                 });
                 return;
@@ -465,7 +443,7 @@
                 } catch (e) {}
 
                 new TomSelect($select[0], {
-                    create: false,
+                    create: true,
                     allowEmptyOption: true,
                 });
             }
@@ -572,13 +550,14 @@
                     tanggal: $('#tanggal').val(),
                 };
 
-                let idJenis = $('#id_jenis_pemasukan').val();
-                let namaJenis = $('#nama_jenis').val();
+                const selectedValue = $('#id_jenis_pemasukan').val();
+                const selectedText = ($('#id_jenis_pemasukan option:selected').text() || '').trim();
+                const isNumericId = selectedValue && /^\d+$/.test(String(selectedValue));
 
-                if (idJenis) {
-                    formData.id_jenis_pemasukan = idJenis;
-                } else if (namaJenis) {
-                    formData.nama_jenis = namaJenis;
+                if (isNumericId) {
+                    formData.id_jenis_pemasukan = selectedValue;
+                } else if (selectedText) {
+                    formData.nama_jenis = selectedText;
                 }
 
                 try {
@@ -694,7 +673,6 @@
             await setDynamicButton();
             await selectData(selectOptions);
             await searchList();
-            await handleInput();
             await filterList();
             await addData();
             await submitForm();

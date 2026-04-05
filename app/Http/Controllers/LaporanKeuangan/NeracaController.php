@@ -3,12 +3,13 @@
 namespace App\Http\Controllers\LaporanKeuangan;
 
 use App\Http\Controllers\Controller;
-use App\Models\DetailRetur;
+use App\Models\DetailPengeluaran;
 use App\Models\Hutang;
+use App\Models\Mutasi;
+use App\Models\Pengeluaran;
 use App\Models\Pemasukan;
-use App\Models\StockBarang;
+use App\Models\Piutang;
 use App\Services\ArusKasService;
-use App\Services\LabaRugiService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,9 +19,8 @@ class NeracaController extends Controller
 {
     private array $menu = [];
     protected $arusKasService;
-    protected $labaRugiService;
 
-    public function __construct(ArusKasService $arusKasService, LabaRugiService $labaRugiService)
+    public function __construct(ArusKasService $arusKasService)
     {
         $this->menu;
         $this->title = [
@@ -28,7 +28,6 @@ class NeracaController extends Controller
         ];
 
         $this->arusKasService = $arusKasService;
-        $this->labaRugiService = $labaRugiService;
     }
 
     public function index()
@@ -45,116 +44,181 @@ class NeracaController extends Controller
     public function getNeraca(Request $request)
     {
         try {
-            $month = $request->has('month') ? $request->month : Carbon::now()->month;
-            $year = $request->has('year') ? $request->year : Carbon::now()->year;
+            $month = (int)($request->input('month') ?? Carbon::now()->month);
+            $year = (int)($request->input('year') ?? Carbon::now()->year);
 
-            $result = $this->arusKasService->getArusKasData($request);
+            $startOfYear = Carbon::create($year, 1, 1)->startOfDay();
 
-            $hutang = Hutang::where('status', '1')->get();
+            $computeForMonth = function (int $m) use ($startOfYear, $year) {
+                try {
+                    $endOfMonth = Carbon::create($year, $m, 1)->endOfMonth()->endOfDay();
 
-            $hutangItems = $hutang->map(function ($item, $index) {
-                // Hitung total nilai dari detail pemasukan yang terkait
-                $totalDetail = $item->detailhutang()->sum('nilai');
+                    $pemasukanIn = (int) Pemasukan::whereBetween('tanggal', [$startOfYear, $endOfMonth])->sum('nilai');
+                    $pengeluaranOut = (int) Pengeluaran::whereBetween('tanggal', [$startOfYear, $endOfMonth])->sum('nilai');
+                    $pengeluaranBayarHutangOut = (int) DetailPengeluaran::whereBetween('created_at', [$startOfYear, $endOfMonth])
+                        ->sum('nilai');
 
-                // Kurangi nilai pemasukan dengan total dari detail
-                $sisaNilai = $item->nilai - $totalDetail;
+                $piutangOutBesar = (int) Piutang::whereBetween('tanggal', [$startOfYear, $endOfMonth])->where('id_toko', 1)->sum('nilai');
+                $piutangOutKecil = (int) Piutang::whereBetween('tanggal', [$startOfYear, $endOfMonth])->where('id_toko', '!=', 1)->sum('nilai');
+                $piutangInBesar = (int) DB::table('detail_piutang')
+                    ->join('piutang', 'detail_piutang.id_piutang', '=', 'piutang.id')
+                    ->whereBetween('detail_piutang.created_at', [$startOfYear, $endOfMonth])
+                    ->where('piutang.id_toko', 1)
+                    ->sum('detail_piutang.nilai');
+                $piutangInKecil = (int) DB::table('detail_piutang')
+                    ->join('piutang', 'detail_piutang.id_piutang', '=', 'piutang.id')
+                    ->whereBetween('detail_piutang.created_at', [$startOfYear, $endOfMonth])
+                    ->where('piutang.id_toko', '!=', 1)
+                    ->sum('detail_piutang.nilai');
 
-                // Jika nilai tersisa 0 atau kurang, anggap sudah lunas
-                if ($sisaNilai <= 0) {
-                    return null;
+                $hutangInBesar = (int) Hutang::whereBetween('tanggal', [$startOfYear, $endOfMonth])->where('id_toko', 1)->sum('nilai');
+                $hutangInKecil = (int) Hutang::whereBetween('tanggal', [$startOfYear, $endOfMonth])->where('id_toko', '!=', 1)->sum('nilai');
+                $hutangOutBesar = (int) DB::table('detail_hutang')
+                    ->join('hutang', 'detail_hutang.id_hutang', '=', 'hutang.id')
+                    ->whereBetween('detail_hutang.created_at', [$startOfYear, $endOfMonth])
+                    ->where('hutang.id_toko', 1)
+                    ->sum('detail_hutang.nilai');
+                $hutangOutKecil = (int) DB::table('detail_hutang')
+                    ->join('hutang', 'detail_hutang.id_hutang', '=', 'hutang.id')
+                    ->whereBetween('detail_hutang.created_at', [$startOfYear, $endOfMonth])
+                    ->where('hutang.id_toko', '!=', 1)
+                    ->sum('detail_hutang.nilai');
+
+                $mutasi = Mutasi::whereBetween('created_at', [$startOfYear, $endOfMonth])->get(['id_toko_pengirim', 'id_toko_penerima', 'nilai']);
+                $mutasiKasBesarIn = 0;
+                $mutasiKasBesarOut = 0;
+                $mutasiKasKecilIn = 0;
+                $mutasiKasKecilOut = 0;
+                foreach ($mutasi as $row) {
+                    $nilai = (int)($row->nilai ?? 0);
+                    if ((string)$row->id_toko_pengirim === '1') {
+                        $mutasiKasBesarOut += $nilai;
+                    } else {
+                        $mutasiKasKecilOut += $nilai;
+                    }
+                    if ((string)$row->id_toko_penerima === '1') {
+                        $mutasiKasBesarIn += $nilai;
+                    } else {
+                        $mutasiKasKecilIn += $nilai;
+                    }
                 }
 
-                $jenis = $item->jangka == 1 ? 'Hutang Jangka Pendek' : 'Hutang Jangka Panjang';
+                $kasBesar = $pemasukanIn
+                    + $hutangInBesar
+                    + $piutangInBesar
+                    + $mutasiKasBesarIn
+                    - $pengeluaranOut
+                    - $pengeluaranBayarHutangOut
+                    - $hutangOutBesar
+                    - $piutangOutBesar
+                    - $mutasiKasBesarOut;
 
-                return [
-                    "kode" => "III." . ($index + 1),
-                    "nama" => $jenis . ' - ' . $item->keterangan,
-                    "nilai" => $sisaNilai,
+                $kasKecil = $hutangInKecil
+                    + $piutangInKecil
+                    + $mutasiKasKecilIn
+                    - $hutangOutKecil
+                    - $piutangOutKecil
+                    - $mutasiKasKecilOut;
+
+                $kasBesar += $kasKecil;
+                $kasKecil = 0;
+
+                $asetPeralatanBesar = (int) Pengeluaran::whereBetween('tanggal', [$startOfYear, $endOfMonth])->where('is_asset', 'Asset Peralatan Besar')->sum('nilai');
+                $asetPeralatanKecil = (int) Pengeluaran::whereBetween('tanggal', [$startOfYear, $endOfMonth])->where('is_asset', 'Asset Peralatan Kecil')->sum('nilai');
+
+                $piutangCreated = (int) Piutang::whereBetween('tanggal', [$startOfYear, $endOfMonth])->sum('nilai');
+                $piutangPaid = (int) DB::table('detail_piutang')
+                    ->join('piutang', 'detail_piutang.id_piutang', '=', 'piutang.id')
+                    ->whereBetween('detail_piutang.created_at', [$startOfYear, $endOfMonth])
+                    ->sum('detail_piutang.nilai');
+                $piutangSaldo = max(0, $piutangCreated - $piutangPaid);
+
+                $hutangCreated = (int) Hutang::whereBetween('tanggal', [$startOfYear, $endOfMonth])->sum('nilai');
+                $hutangPaid = (int) DB::table('detail_hutang')
+                    ->join('hutang', 'detail_hutang.id_hutang', '=', 'hutang.id')
+                    ->whereBetween('detail_hutang.created_at', [$startOfYear, $endOfMonth])
+                    ->sum('detail_hutang.nilai');
+                $hutangSaldo = max(0, $hutangCreated - $hutangPaid);
+
+                $modal = (int) Pemasukan::whereBetween('tanggal', [$startOfYear, $endOfMonth])
+                    ->whereIn('id_jenis_pemasukan', [1, 2])
+                    ->sum('nilai');
+
+                $asetLancar = $kasBesar + $piutangSaldo;
+                $asetTetap = $asetPeralatanBesar + $asetPeralatanKecil;
+                $totalAktiva = round($asetLancar + $asetTetap);
+                $totalHutang = $hutangSaldo;
+                $totalEkuitas = round($totalAktiva - $totalHutang);
+                $saldoBerjalan = $totalEkuitas - $modal;
+
+                    return [
+                    'kas_besar' => $kasBesar,
+                    'kas_kecil' => $kasKecil,
+                    'piutang' => $piutangSaldo,
+                    'hutang' => $hutangSaldo,
+                    'aset_besar' => $asetPeralatanBesar,
+                    'aset_kecil' => $asetPeralatanKecil,
+                    'modal' => $modal,
+                    'saldo_berjalan' => $saldoBerjalan,
+                    'total_aktiva' => $totalAktiva,
+                    'total_hutang' => $totalHutang,
+                    'total_ekuitas' => $totalEkuitas,
                 ];
-            })->filter()->values()->toArray();
+                } catch (\Throwable) {
+                    return [
+                        'kas_besar' => 0,
+                        'kas_kecil' => 0,
+                        'piutang' => 0,
+                        'hutang' => 0,
+                        'aset_besar' => 0,
+                        'aset_kecil' => 0,
+                        'modal' => 0,
+                        'saldo_berjalan' => 0,
+                        'total_aktiva' => 0,
+                        'total_hutang' => 0,
+                        'total_ekuitas' => 0,
+                    ];
+                }
+            };
 
-            $ekuitasItems = [];
+            $current = $computeForMonth($month);
+            $totalAktiva = $current['total_aktiva'];
+            $totalHutang = $current['total_hutang'];
+            $totalEkuitas = $current['total_ekuitas'];
+            $totalPasiva = $totalHutang + $totalEkuitas;
 
+            $hutangItems = [
+                [
+                    "kode" => "III.1",
+                    "nama" => "Hutang",
+                    "nilai" => $totalHutang,
+                ],
+            ];
+
+            $ekuitasItems = [
+                [
+                    "kode" => "IV.1",
+                    "nama" => "Modal",
+                    "nilai" => $current['modal'],
+                ],
+            ];
+
+            $prevSaldo = 0;
             for ($i = 1; $i <= $month; $i++) {
-                $periode = Carbon::create($year, $i);
-                $namaPeriode = $periode->translatedFormat('F Y');
+                $mData = $computeForMonth($i);
+                $currentSaldo = $mData['saldo_berjalan'];
+                $delta = $currentSaldo - $prevSaldo;
+                $prevSaldo = $currentSaldo;
 
-                $nilaiLabaRugi = $this->labaRugiService->hitungLabaRugi($i, $year);
-
-                $kode = "IV." . ($i + 1);
-
+                $periode = Carbon::create($year, $i, 1)->locale('id')->translatedFormat('F Y');
                 $ekuitasItems[] = [
-                    "kode" => $kode,
-                    "nama" => $i == $month
-                        ? "Laba (Rugi) Berjalan Periode $namaPeriode"
-                        : "Laba (Rugi) Ditahan Periode $namaPeriode",
-                    "nilai" => $nilaiLabaRugi,
+                    "kode" => "IV." . ($i + 1),
+                    "nama" => $i === $month
+                        ? "Saldo Berjalan Periode {$periode}"
+                        : "Saldo Akhir Periode {$periode}",
+                    "nilai" => $delta,
                 ];
             }
-
-            $modal = Pemasukan::whereIn('id_jenis_pemasukan', [1, 2])->sum('nilai');
-
-            array_unshift($ekuitasItems, [
-                "kode" => "IV.1",
-                "nama" => "Modal",
-                "nilai" => $modal,
-            ]);
-
-            $penjualanReture = DetailRetur::where('status', 'success')
-                ->where('status_reture', '!=', 'success')
-                ->sum('hpp_jual');
-
-            $stockRetur = DetailRetur::where('status', 'success')
-                ->where('status_reture', '!=', 'success')
-                ->sum('qty_acc');
-
-            $stokDetailStock = DB::table('detail_stock')
-                ->select('id_barang', DB::raw('SUM(qty_now) as total_stok'))
-                ->groupBy('id_barang');
-
-            $stokDetailToko = DB::table('detail_toko')
-                ->select('id_barang', DB::raw('SUM(qty) as total_stok'))
-                ->groupBy('id_barang');
-
-            // Gabungkan hasil stok dari kedua tabel
-            $gabunganStok = $stokDetailStock
-                ->unionAll($stokDetailToko);
-
-            $stokPerBarang = DB::table(DB::raw("({$gabunganStok->toSql()}) as gabungan"))
-                ->mergeBindings($gabunganStok)
-                ->select('id_barang', DB::raw('SUM(total_stok) as total_stok'))
-                ->groupBy('id_barang')
-                ->get();
-
-            $totalStokKeseluruhan = $stokPerBarang->sum('total_stok');
-
-            // Ambil semua HPP dalam satu query
-            $hppList = DB::table('stock_barang')
-                ->select('id_barang', 'hpp_baru')
-                ->pluck('hpp_baru', 'id_barang');
-
-            // Hitung total kasir
-            $totalKasir = $stokPerBarang->sum(function ($item) use ($hppList) {
-                $hpp = $hppList[$item->id_barang] ?? 0;
-                return $item->total_stok * $hpp;
-            });
-
-
-            $asetLancarTotal = $result['data_total']['kas_besar']['saldo_akhir']
-                + $result['data_total']['kas_kecil']['saldo_akhir']
-                + $result['data_total']['piutang']['saldo_akhir']
-                + $totalKasir
-                + $penjualanReture;
-
-            $asetTetapTotal = $result['data_total']['aset_besar']['aset_peralatan_besar']
-                + $result['data_total']['aset_kecil']['aset_peralatan_kecil'];
-
-            $totalAktiva = round($asetLancarTotal + $asetTetapTotal);
-
-            $totalHutang = collect(array_merge($hutangItems))->sum('nilai');
-
-            $totalEkuitas = collect($ekuitasItems)->sum('nilai');
-
             $totalPasiva = $totalHutang + $totalEkuitas;
 
             $data = [
@@ -164,49 +228,33 @@ class NeracaController extends Controller
                     'subkategori' => [
                         [
                             'judul' => 'I. ASET LANCAR',
-                            'total' => round($asetLancarTotal),
+                            'total' => round($current['kas_besar'] + $current['piutang']),
                             'item' => [
                                 [
                                     "kode" => "I.1",
                                     "nama" => "Kas Besar",
-                                    "nilai" => $result['data_total']['kas_besar']['saldo_akhir'],
+                                    "nilai" => $current['kas_besar'],
                                 ],
                                 [
                                     "kode" => "I.2",
-                                    "nama" => "Kas Kecil",
-                                    "nilai" => $result['data_total']['kas_kecil']['saldo_akhir'],
-                                ],
-                                [
-                                    "kode" => "I.3",
-                                    "nama" => "Piutang (Kasbon)",
-                                    "nilai" => $result['data_total']['piutang']['saldo_akhir'],
-                                ],
-                                [
-                                    "kode" => "I.4",
-                                    "nama" => "Stock Barang Jualan ({$totalStokKeseluruhan})",
-                                    "nilai" => round($totalKasir),
-                                    // "nilai" => $totalKasir,
-                                ],
-                                [
-                                    "kode" => "I.5",
-                                    "nama" => "Stock Barang Retur ({$stockRetur})",
-                                    "nilai" => round($penjualanReture),
+                                    "nama" => "Piutang",
+                                    "nilai" => $current['piutang'],
                                 ],
                             ],
                         ],
                         [
                             'judul' => 'II. ASET TETAP',
-                            'total' => $asetTetapTotal,
+                            'total' => $current['aset_besar'] + $current['aset_kecil'],
                             'item' => [
                                 [
                                     "kode" => "II.1",
                                     "nama" => "Peralatan Besar",
-                                    "nilai" => $result['data_total']['aset_besar']['aset_peralatan_besar'],
+                                    "nilai" => $current['aset_besar'],
                                 ],
                                 [
                                     "kode" => "II.2",
                                     "nama" => "Peralatan Kecil",
-                                    "nilai" => $result['data_total']['aset_kecil']['aset_peralatan_kecil'],
+                                    "nilai" => $current['aset_kecil'],
                                 ],
                             ],
                         ],

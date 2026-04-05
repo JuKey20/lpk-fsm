@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\DetailPemasukan;
+use App\Models\JenisPemasukan;
 use App\Models\Pemasukan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -121,16 +122,33 @@ class PemasukanController extends Controller
             'nama_pemasukan' => 'nullable|string',
             'nilai' => 'required|numeric',
             'tanggal' => 'required|date',
-            'id_jenis_pemasukan' => 'required|exists:jenis_pemasukan,id'
+            'id_jenis_pemasukan' => 'nullable|exists:jenis_pemasukan,id',
+            'nama_jenis' => 'nullable|string'
         ];
 
         $validatedData = $request->validate($validation);
 
+        if (empty($validatedData['id_jenis_pemasukan']) && empty($validatedData['nama_jenis'])) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Jenis pemasukan wajib dipilih atau diisi.',
+                'status_code' => 422,
+            ], 422);
+        }
+
         try {
             DB::beginTransaction();
 
+            $idJenis = $validatedData['id_jenis_pemasukan'] ?? null;
+            if (empty($idJenis)) {
+                $namaJenis = trim(preg_replace('/\s+/', ' ', (string)($validatedData['nama_jenis'] ?? '')));
+                $existing = JenisPemasukan::whereRaw('LOWER(nama_jenis) = ?', [mb_strtolower($namaJenis)])->first();
+                $jenis = $existing ?: JenisPemasukan::create(['nama_jenis' => $namaJenis]);
+                $idJenis = $jenis->id;
+            }
+
             Pemasukan::create([
-                'id_jenis_pemasukan' => $validatedData['id_jenis_pemasukan'],
+                'id_jenis_pemasukan' => $idJenis,
                 'nama_pemasukan' => $validatedData['nama_pemasukan'],
                 'nilai' => $validatedData['nilai'],
                 'tanggal' => $validatedData['tanggal'],
