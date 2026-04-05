@@ -93,315 +93,168 @@
     <div class="pcoded-main-container">
         <div class="pcoded-content pt-1 mt-1">
             @include('components.breadcrumbs')
-            <div class="row">
-                <div class="{{ in_array(Auth::user()->id_level, [1, 5, 6]) ? 'col-12 col-lg-4' : 'col-12' }}">
-                    <div class="row">
-                        @if (auth()->user()->id_level != 2)
-                            <div class="{{ in_array(Auth::user()->id_level, [3]) ? 'col-12' : 'col-12 col-lg-12' }}">
-                                <div class="row px-3 pb-3">
-                                    <div class="col-12 glass bg-primary text-white">
-                                        <img src="{{ asset('images/dash-1.svg') }}" alt="img" class="img-fluid"
-                                            style="position: absolute; top: 0; right: 0; width: 65px; height: auto; z-index: 1;">
-                                        <div class="row justify-content-between align-items-center">
-                                            <div class="col-8 col-xl-9 col-lg-12">
-                                                <h5 class="mb-2 text-light font-weight-bold">Total Omset</h5>
-                                                <div class="d-flex align-items-center mb-2">
-                                                    <div class="avatar bg-primary text-white mx-2">
-                                                        <i class="fa fa-dollar-sign fa-2x"></i>
-                                                    </div>
-                                                    <div>
-                                                        <h3 class="text-light mb-0" id="total-pendapatan">Rp 0
-                                                        </h3>
-                                                        <hr class="p-0 m-1">
-                                                        <small><i class="fa fa-circle-info mr-1"></i><b
-                                                                id="info-omset">Omset
-                                                                per hari
-                                                                ini</b></small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-4 col-xl-3 col-lg-12 text-right">
-                                                <button class="btn-dynamic btn btn-outline-light w-100" type="button"
-                                                    data-toggle="collapse" data-target="#filter-collapse3" title="Filter"
-                                                    aria-expanded="false" aria-controls="filter-collapse3">
-                                                    <i class="fa fa-filter"></i>
-                                                </button>
-                                            </div>
+
+            @if (in_array(Auth::user()->id_level, [1, 5, 6]))
+                <div class="row">
+                    <div class="col-12 col-lg-6">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-2">Data Pemasukan</h5>
+                                    <div class="row align-items-center">
+                                        <div class="col-auto ms-auto">
+                                            <span class="text-muted me-1">
+                                                <i class="fa fa-cogs mr-1"></i>Atur Grafik :
+                                            </span>
+                                            <button class="btn btn-outline-primary btn-sm" id="chart-area-income"
+                                                title="Area Grafik">
+                                                <i class="fa fa-chart-area"></i>
+                                            </button>
+                                            <button class="btn btn-outline-primary btn-sm" id="chart-bar-income"
+                                                title="Bar Grafik">
+                                                <i class="fa fa-chart-bar"></i>
+                                            </button>
+                                            <button class="btn btn-outline-primary btn-sm" id="chart-line-income"
+                                                title="Line Grafik">
+                                                <i class="fa fa-chart-line"></i>
+                                            </button>
                                         </div>
-                                        <div class="collapse" id="filter-collapse3">
-                                            <hr>
-                                            <form id="custom-filter-omset">
-                                                <div class="row">
-                                                    <div class="col-12 col-xl-12 col-lg-12 mb-2">
-                                                        <input class="form-control" type="text" id="daterange-omset"
-                                                            name="daterange" placeholder="Pilih rentang tanggal">
-                                                    </div>
-                                                    <div class="col-12 col-xl-12 col-lg-12">
-                                                        <div class="row justify-content-end text-right">
-                                                            <div class="col-6 col-xl-6 col-lg-12 mb-2 text-right">
-                                                                <button
-                                                                    class="btn btn-light w-100 h-100 d-flex align-items-center justify-content-center"
-                                                                    id="tb-filter" type="submit">
-                                                                    <i class="fa fa-magnifying-glass mr-1"></i>Submit
-                                                                </button>
-                                                            </div>
-                                                            <div class="col-6 col-xl-6 col-lg-12 mb-2 text-right">
-                                                                <button type="button"
-                                                                    class="btn btn-secondary w-100 h-100 d-flex align-items-center justify-content-center"
-                                                                    id="reset-omset">
-                                                                    <i class="fa fa-rotate mr-1"></i>Reset
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </form>
-                                        </div>
-                                        @if (in_array(Auth::user()->id_level, [1, 3, 5, 6]))
-                                            <hr>
-                                            <div class="row">
-                                                <div
-                                                    class="{{ in_array(Auth::user()->id_level, [3]) ? 'col-12' : 'col-12 col-xxl-6 col-xl-6 col-lg-12' }} px-3 pb-2">
-                                                    <div class="glass flex-fill text-dark">
-                                                        <i class="fa fa-shopping-cart fa-lg mb-2 text-primary"></i>
-                                                        <div class="font-weight-bold">Jumlah Transaksi</div>
-                                                        <div id="total-transaksi" class="fs-4 font-weight-bold">0</div>
-                                                    </div>
-                                                </div>
-                                                @if (in_array(Auth::user()->id_level, [1, 5, 6]))
-                                                    <div class="col-12 col-xxl-6 col-xl-6 col-lg-12 px-3">
-                                                        <div class="glass flex-fill text-dark">
-                                                            <i class="fa fa-wallet fa-lg mb-2 text-primary"></i>
-                                                            <div class="font-weight-bold">Laba Kotor</div>
-                                                            <div id="laba-kotor" class="fs-4 font-weight-bold">Rp 0</div>
-                                                        </div>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        @endif
                                     </div>
                                 </div>
+                                <button class="btn-dynamic btn btn-outline-primary" type="button" data-toggle="collapse"
+                                    data-target="#filter-collapse-income" aria-expanded="false"
+                                    aria-controls="filter-collapse-income">
+                                    <i class="fa fa-filter"></i> Filter
+                                </button>
                             </div>
-                        @endif
-                        @if (in_array(Auth::user()->id_level, [1, 2, 6]))
-                            <div class="{{ in_array(Auth::user()->id_level, [2]) ? 'col-12 col-lg-6' : 'col-12 col-lg-12' }}">
-                                <div class="card table-card">
-                                    <div class="card-header d-flex justify-content-between align-items-center">
-                                        <h5>Top 10 Penjualan</h5>
-                                        @if (auth()->user()->id_toko == 1)
-                                            <div class="d-flex align-items-center gap-2">
+                            <div class="card-body">
+                                <div class="row pb-2 align-items-center justify-content-between">
+                                    <div class="mb-2 col-12 col-md-auto">
+                                        <h4 class="mb-1" id="total-income">Rp. 0</h4>
+                                        <span>Data Pemasukan</span>
+                                    </div>
+                                    <div class="mb-2 col-12 col-md-auto ms-auto justify-content-end text-end">
+                                        <div class="collapse" id="filter-collapse-income">
+                                            <div class="d-flex flex-column flex-md-row align-items-md-start gap-2">
+                                                <div style="width: 200px; display: none;"
+                                                    id="filter-month-container-income">
+                                                    <select id="filter-month-income" name="month"
+                                                        class="filter-option form-select form-select-sm w-100">
+                                                        <option value="1">Januari</option>
+                                                        <option value="2">Februari</option>
+                                                        <option value="3">Maret</option>
+                                                        <option value="4">April</option>
+                                                        <option value="5">Mei</option>
+                                                        <option value="6">Juni</option>
+                                                        <option value="7">Juli</option>
+                                                        <option value="8">Agustus</option>
+                                                        <option value="9">September</option>
+                                                        <option value="10">Oktober</option>
+                                                        <option value="11">November</option>
+                                                        <option value="12">Desember</option>
+                                                    </select>
+                                                </div>
+                                                <div style="width: 200px;" id="filter-year-container-income">
+                                                    <select id="filter-year-income" name="year"
+                                                        class="filter-option form-select form-select-sm w-100"></select>
+                                                </div>
                                                 <div style="width: 200px;">
-                                                    <select id="f-barang-toko"
-                                                        class="filter-option form-select form-select-sm w-auto">
-                                                        <option value="all">Semua Toko</option>
-                                                        @foreach ($toko as $tokoData)
-                                                            <option value="{{ $tokoData->id }}">{{ $tokoData->nama_toko }}
-                                                            </option>
-                                                        @endforeach
+                                                    <select id="filter-period-income" name="period"
+                                                        class="filter-option form-select form-select-sm w-100">
+                                                        <option value="daily">Harian</option>
+                                                        <option value="monthly" selected>Bulanan</option>
+                                                        <option value="yearly">Tahunan</option>
                                                     </select>
                                                 </div>
                                             </div>
-                                        @endif
-                                    </div>
-                                    <div class="performance-scroll overflow-auto" style="position: relative;">
-                                        <div class="card-body p-0">
-                                            <div class="table-responsive">
-                                                <table class="table table-striped m-b-0 without-header">
-                                                    <tbody id="listData"></tbody>
-                                                </table>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
+                                <div id="laporan-chart-income"></div>
                             </div>
-                            <div class="{{ in_array(Auth::user()->id_level, [2]) ? 'col-12 col-lg-6' : 'col-12 col-lg-12' }}">
-                                <div class="card table-card">
-                                    <div class="card-header d-flex justify-content-between align-items-center">
-                                        <h5>Top 10 Member</h5>
-                                        @if (auth()->user()->id_toko == 1)
-                                            <div class="d-flex align-items-center gap-2">
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-2">Data Pengeluaran</h5>
+                                    <div class="row align-items-center">
+                                        <div class="col-auto ms-auto">
+                                            <span class="text-muted me-1">
+                                                <i class="fa fa-cogs mr-1"></i>Atur Grafik :
+                                            </span>
+                                            <button class="btn btn-outline-primary btn-sm" id="chart-area-expense"
+                                                title="Area Grafik">
+                                                <i class="fa fa-chart-area"></i>
+                                            </button>
+                                            <button class="btn btn-outline-primary btn-sm" id="chart-bar-expense"
+                                                title="Bar Grafik">
+                                                <i class="fa fa-chart-bar"></i>
+                                            </button>
+                                            <button class="btn btn-outline-primary btn-sm" id="chart-line-expense"
+                                                title="Line Grafik">
+                                                <i class="fa fa-chart-line"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="btn-dynamic btn btn-outline-primary" type="button" data-toggle="collapse"
+                                    data-target="#filter-collapse-expense" aria-expanded="false"
+                                    aria-controls="filter-collapse-expense">
+                                    <i class="fa fa-filter"></i> Filter
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="row pb-2 align-items-center justify-content-between">
+                                    <div class="mb-2 col-12 col-md-auto">
+                                        <h4 class="mb-1" id="total-expense">Rp. 0</h4>
+                                        <span>Data Pengeluaran</span>
+                                    </div>
+                                    <div class="mb-2 col-12 col-md-auto ms-auto justify-content-end text-end">
+                                        <div class="collapse" id="filter-collapse-expense">
+                                            <div class="d-flex flex-column flex-md-row align-items-md-start gap-2">
+                                                <div style="width: 200px; display: none;"
+                                                    id="filter-month-container-expense">
+                                                    <select id="filter-month-expense" name="month"
+                                                        class="filter-option form-select form-select-sm w-100">
+                                                        <option value="1">Januari</option>
+                                                        <option value="2">Februari</option>
+                                                        <option value="3">Maret</option>
+                                                        <option value="4">April</option>
+                                                        <option value="5">Mei</option>
+                                                        <option value="6">Juni</option>
+                                                        <option value="7">Juli</option>
+                                                        <option value="8">Agustus</option>
+                                                        <option value="9">September</option>
+                                                        <option value="10">Oktober</option>
+                                                        <option value="11">November</option>
+                                                        <option value="12">Desember</option>
+                                                    </select>
+                                                </div>
+                                                <div style="width: 200px;" id="filter-year-container-expense">
+                                                    <select id="filter-year-expense" name="year"
+                                                        class="filter-option form-select form-select-sm w-100"></select>
+                                                </div>
                                                 <div style="width: 200px;">
-                                                    <select id="f-member-toko"
-                                                        class="filter-option form-select form-select-sm w-auto">
-                                                        <option value="all">Semua Toko</option>
-                                                        @foreach ($toko as $tokoData)
-                                                            <option value="{{ $tokoData->id }}">{{ $tokoData->nama_toko }}
-                                                            </option>
-                                                        @endforeach
+                                                    <select id="filter-period-expense" name="period"
+                                                        class="filter-option form-select form-select-sm w-100">
+                                                        <option value="daily">Harian</option>
+                                                        <option value="monthly" selected>Bulanan</option>
+                                                        <option value="yearly">Tahunan</option>
                                                     </select>
                                                 </div>
                                             </div>
-                                        @endif
-                                    </div>
-                                    <div class="performance-scroll overflow-auto" style="position: relative;">
-                                        <div class="card-body p-0">
-                                            <div class="table-responsive">
-                                                <table class="table table-striped m-b-0 without-header">
-                                                    <tbody id="listData2"></tbody>
-                                                </table>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
+                                <div id="laporan-chart-expense"></div>
                             </div>
-                        @endif
+                        </div>
                     </div>
                 </div>
-                <div class="{{ in_array(Auth::user()->id_level, [1, 5, 6]) ? 'col-12 col-lg-8' : 'd-none' }}">
-                    <div class="row">
-                        @if (in_array(Auth::user()->id_level, [1, 6]))
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-header d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h5 class="mb-2">Komparasi Penjualan Antar Toko</h5>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto ms-auto">
-                                                    <small class="me-1">
-                                                        <i class="fa fa-circle-info mr-1"></i> <b id="info-komparasi">Data
-                                                            per
-                                                            hari ini</b>
-                                                    </small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <button class="btn-dynamic btn btn-outline-primary" type="button"
-                                            data-toggle="collapse" data-target="#filter-collapse2" aria-expanded="false"
-                                            aria-controls="filter-collapse2">
-                                            <i class="fa fa-filter"></i> Filter
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row pb-2 align-items-center justify-content-between">
-                                            <div class="mb-2 col-12 col-md-auto">
-                                                <h4 class="mb-1" id="total-penjualan2">Rp. 0</h4>
-                                                <span>Data Penjualan</span>
-                                            </div>
-                                            <div class="mb-2 col-12 col-md-auto ms-auto justify-content-end text-end">
-                                                <div class="collapse" id="filter-collapse2">
-                                                    <div class="d-flex flex-column flex-md-row align-items-md-start gap-2">
-                                                        <form id="custom-filter"
-                                                            class="d-flex justify-content-between align-items-center w-100">
-                                                            <i class="fa fa-filter"></i>
-                                                            <input class="form-control w-75 mx-2 mb-lg-0" type="text"
-                                                                id="daterange" name="daterange"
-                                                                placeholder="Pilih rentang tanggal">
-                                                            <button
-                                                                class="btn btn-success w-25 h-100 d-flex align-items-center justify-content-center mr-2"
-                                                                id="tb-filter" type="submit">
-                                                                <i class="fa fa-magnifying-glass mr-2"></i>Submit
-                                                            </button>
-                                                            <button type="button"
-                                                                class="btn btn-secondary w-25 h-100 d-flex align-items-center justify-content-center"
-                                                                id="reset-komparasi">
-                                                                <i class="fa fa-rotate mr-2"></i>Reset
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div id="komparasi-chart"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-                        @if (in_array(Auth::user()->id_level, [1, 5, 6]))
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-header d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h5 class="mb-2">Rekapitulasi Penjualan</h5>
-                                            <div class="row align-items-center">
-                                                <div class="col-auto ms-auto">
-                                                    <span class="text-muted me-1">
-                                                        <i class="fa fa-cogs mr-1"></i>Atur Grafik :
-                                                    </span>
-                                                    <button class="btn btn-outline-primary btn-sm" id="chart-area"
-                                                        title="Area Grafik">
-                                                        <i class="fa fa-chart-area"></i>
-                                                    </button>
-                                                    <button class="btn btn-outline-primary btn-sm" id="chart-bar"
-                                                        title="Bar Grafik">
-                                                        <i class="fa fa-chart-bar"></i>
-                                                    </button>
-                                                    <button class="btn btn-outline-primary btn-sm" id="chart-line"
-                                                        title="Line Grafik">
-                                                        <i class="fa fa-chart-line"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <button class="btn-dynamic btn btn-outline-primary" type="button"
-                                            data-toggle="collapse" data-target="#filter-collapse" aria-expanded="false"
-                                            aria-controls="filter-collapse">
-                                            <i class="fa fa-filter"></i> Filter
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row pb-2 align-items-center justify-content-between">
-                                            <div class="mb-2 col-12 col-md-auto">
-                                                <h4 class="mb-1" id="total-penjualan">Rp. 0</h4>
-                                                <span>Data Penjualan</span>
-                                            </div>
-                                            <div class="mb-2 col-12 col-md-auto ms-auto justify-content-end text-end">
-                                                <div class="collapse" id="filter-collapse">
-                                                    <div class="d-flex flex-column flex-md-row align-items-md-start gap-2">
-                                                        <div style="width: 200px; display: none;"
-                                                            id="filter-month-container">
-                                                            <select id="filter-month" name="month"
-                                                                class="filter-option form-select form-select-sm w-100">
-                                                                <option value="1">Januari</option>
-                                                                <option value="2">Februari</option>
-                                                                <option value="3">Maret</option>
-                                                                <option value="4">April</option>
-                                                                <option value="5">Mei</option>
-                                                                <option value="6">Juni</option>
-                                                                <option value="7">Juli</option>
-                                                                <option value="8">Agustus</option>
-                                                                <option value="9">September</option>
-                                                                <option value="10">Oktober</option>
-                                                                <option value="11">November</option>
-                                                                <option value="12">Desember</option>
-                                                            </select>
-                                                        </div>
-                                                        <div style="width: 200px;" id="filter-year-container">
-                                                            <select id="filter-year" name="year"
-                                                                class="filter-option form-select form-select-sm w-100"></select>
-                                                        </div>
-                                                        <div style="width: 200px;">
-                                                            <select id="filter-period" name="period"
-                                                                class="filter-option form-select form-select-sm w-100">
-                                                                <option value="daily">Harian</option>
-                                                                <option value="monthly" selected>Bulanan</option>
-                                                                <option value="yearly">Tahunan</option>
-                                                            </select>
-                                                        </div>
-                                                        @if (auth()->user()->id_toko == 1)
-                                                            <div style="width: 200px;">
-                                                                <select id="f-penjualan-toko" name="nama_toko"
-                                                                    class="filter-option form-select form-select-sm w-100">
-                                                                    <option value="all">Semua Toko</option>
-                                                                    @foreach ($toko as $tokoData)
-                                                                        <option value="{{ $tokoData->id }}">
-                                                                            {{ $tokoData->nama_toko }}
-                                                                        </option>
-                                                                    @endforeach
-                                                                </select>
-                                                            </div>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div id="laporan-chart"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
+            @endif
         </div>
     </div>
 @endsection
@@ -1111,75 +964,262 @@
             $('#listData2').html(getDataTable);
         }
 
-        async function filterSelect() {
-            const filterElements = document.querySelectorAll('.filter-option');
+        const rekapKeuanganState = {
+            income: {
+                chart: null,
+                chartType: 'bar',
+                apiData: null,
+                debounceTimeout: null,
+            },
+            expense: {
+                chart: null,
+                chartType: 'bar',
+                apiData: null,
+                debounceTimeout: null,
+            },
+        };
 
-            async function updateFilters() {
-                let allSelected = true;
-                filterElements.forEach((select) => {
-                    const value = select.value.trim();
-                    if (!value) {
-                        allSelected = false;
-                    }
-                    customFilter5[select.name] = value;
-                });
+        function rekapEl(id) {
+            return document.getElementById(id);
+        }
 
-                if (allSelected) {
-                    await getLaporanPenjualan(customFilter5);
-                }
+        function populateYearOptionsForRekap(selectId) {
+            const filterYear = rekapEl(selectId);
+            if (!filterYear) return;
+
+            const currentYear = new Date().getFullYear();
+            const startYear = 2000;
+            const existingValue = parseInt(filterYear.value, 10);
+            const selectedYear = Number.isFinite(existingValue) ? existingValue : currentYear;
+
+            filterYear.innerHTML = '';
+            for (let year = currentYear; year >= startYear; year--) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                option.selected = year === selectedYear;
+                filterYear.appendChild(option);
+            }
+        }
+
+        function setRekapFilterVisibility(prefix) {
+            const periodEl = rekapEl(`filter-period-${prefix}`);
+            const monthContainer = rekapEl(`filter-month-container-${prefix}`);
+            const yearContainer = rekapEl(`filter-year-container-${prefix}`);
+
+            if (!periodEl || !monthContainer || !yearContainer) return;
+
+            const period = periodEl.value;
+            monthContainer.style.display = period === 'daily' ? 'block' : 'none';
+            yearContainer.style.display = 'block';
+        }
+
+        async function fetchRekapKeuangan(prefix) {
+            const periodEl = rekapEl(`filter-period-${prefix}`);
+            const monthEl = rekapEl(`filter-month-${prefix}`);
+            const yearEl = rekapEl(`filter-year-${prefix}`);
+
+            if (!periodEl || !monthEl || !yearEl) return null;
+
+            const period = periodEl.value;
+            const year = parseInt(yearEl.value, 10) || new Date().getFullYear();
+            const month = parseInt(monthEl.value, 10) || (new Date().getMonth() + 1);
+            const type = prefix === 'income' ? 'income' : 'expense';
+
+            const params = {
+                period,
+                year,
+                month,
+                type,
+            };
+
+            if (period === 'yearly') {
+                params.end_year = year;
+                params.start_year = year - 4;
             }
 
-            filterElements.forEach((select) => {
-                select.addEventListener('change', async () => {
-                    if (select.id === 'f-penjualan-toko' && select.value.trim()) {
-                        await updateFilters();
-                    }
+            const getDataRest = await renderAPI('GET', '{{ route('dashboard.keuangan') }}', params).then(function(
+                response
+            ) {
+                return response;
+            }).catch(function(error) {
+                return error.response;
+            });
 
-                    if (select.id === 'f-barang-toko' && select.value.trim()) {
-                        customFilter2 = {
-                            id_toko: select.value.trim()
-                        };
-                        await getTopPenjualan(customFilter2);
-                    }
-                    if (select.id === 'f-member-toko' && select.value.trim()) {
-                        customFilter3 = {
-                            id_toko: select.value.trim()
-                        };
-                        await getTopMember(customFilter3);
-                    }
+            if (getDataRest && getDataRest.status === 200) {
+                return getDataRest.data?.data || null;
+            }
+
+            console.error(getDataRest?.data?.message || 'Error retrieving data.');
+            return null;
+        }
+
+        function renderRekapKeuanganChart(prefix) {
+            const state = rekapKeuanganState[prefix];
+            const data = state.apiData;
+
+            const totalEl = rekapEl(`total-${prefix}`);
+            const chartContainer = rekapEl(`laporan-chart-${prefix}`);
+
+            if (!totalEl || !chartContainer || !data) return;
+
+            const seriesData = prefix === 'income' ? (data.income?.series || []) : (data.expense?.series || []);
+            const totalValue = prefix === 'income' ? (data.income?.total || 0) : (data.expense?.total || 0);
+            const seriesName = prefix === 'income' ? 'Pemasukan' : 'Pengeluaran';
+            const color = prefix === 'income' ? '#1abc9c' : '#e74c3c';
+
+            totalEl.textContent = formatRupiah(totalValue);
+
+            if (state.chart) {
+                state.chart.destroy();
+                state.chart = null;
+            }
+
+            const chartOptions = {
+                series: [{
+                    name: seriesName,
+                    data: seriesData,
+                }],
+                chart: {
+                    height: 350,
+                    type: state.chartType,
+                    toolbar: {
+                        show: true,
+                        tools: {
+                            download: true,
+                        },
+                    },
+                },
+                dataLabels: {
+                    enabled: false,
+                },
+                stroke: {
+                    curve: state.chartType === 'line' ? 'smooth' : 'straight',
+                    width: 2,
+                    colors: [color],
+                },
+                xaxis: {
+                    categories: data.categories || [],
+                },
+                colors: [color],
+                legend: {
+                    position: 'top',
+                },
+                fill: {
+                    type: 'solid',
+                    colors: [color],
+                },
+                markers: {
+                    size: 5,
+                    colors: [color],
+                    strokeWidth: 2,
+                },
+                tooltip: {
+                    y: {
+                        formatter: (value) => formatRupiah(value),
+                    },
+                },
+                yaxis: {
+                    labels: {
+                        formatter: (value) => formatRupiah(value).replace('Rp', '').trim(),
+                    },
+                },
+            };
+
+            chartContainer.innerHTML = '';
+            state.chart = new ApexCharts(chartContainer, chartOptions);
+            state.chart.render();
+        }
+
+        async function refreshRekapKeuangan(prefix) {
+            setRekapFilterVisibility(prefix);
+            const apiData = await fetchRekapKeuangan(prefix);
+            if (!apiData) return;
+            rekapKeuanganState[prefix].apiData = apiData;
+            renderRekapKeuanganChart(prefix);
+        }
+
+        function attachRekapChartTypeButtons(prefix) {
+            const chartTypeMapping = {
+                [`chart-area-${prefix}`]: 'area',
+                [`chart-bar-${prefix}`]: 'bar',
+                [`chart-line-${prefix}`]: 'line',
+            };
+
+            const setActiveChartButton = (activeId) => {
+                Object.keys(chartTypeMapping).forEach((id) => {
+                    const button = rekapEl(id);
+                    if (!button) return;
+                    button.classList.toggle('btn-primary', id === activeId);
+                    button.classList.toggle('btn-outline-primary', id !== activeId);
+                });
+            };
+
+            Object.keys(chartTypeMapping).forEach((id) => {
+                const button = rekapEl(id);
+                if (!button) return;
+                button.addEventListener('click', () => {
+                    rekapKeuanganState[prefix].chartType = chartTypeMapping[id];
+                    renderRekapKeuanganChart(prefix);
+                    setActiveChartButton(id);
+                });
+            });
+
+            setActiveChartButton(`chart-bar-${prefix}`);
+        }
+
+        function attachRekapFilterListeners(prefix) {
+            const filterPeriod = rekapEl(`filter-period-${prefix}`);
+            const filterMonth = rekapEl(`filter-month-${prefix}`);
+            const filterYear = rekapEl(`filter-year-${prefix}`);
+
+            if (!filterPeriod || !filterMonth || !filterYear) return;
+
+            const debounce = (callback, delay = 500) => {
+                clearTimeout(rekapKeuanganState[prefix].debounceTimeout);
+                rekapKeuanganState[prefix].debounceTimeout = setTimeout(callback, delay);
+            };
+
+            [filterPeriod, filterMonth, filterYear].forEach((filterElement) => {
+                filterElement.addEventListener('change', () => {
+                    debounce(() => refreshRekapKeuangan(prefix));
                 });
             });
         }
 
         async function initPageLoad() {
-            if ('{{ auth()->user()->id_level != 2 }}') {
-                await getOmset(customFilter4);
-                await filterOmset();
-            }
             await setDynamicButton();
-            if (
-                '{{ in_array(auth()->user()->id_level, [1, 6]) }}'
-            ) {
-                await getKomparasiToko(customFilter);
-                await filterKomparasiToko();
-            }
+
             if ('{{ in_array(auth()->user()->id_level, [1, 5, 6]) }}') {
-                await populateYearOptions();
-                await getLaporanPenjualan();
-                await filterLaporanPenjualan();
+                const currentMonth = String(new Date().getMonth() + 1);
+                const monthIncome = rekapEl('filter-month-income');
+                const monthExpense = rekapEl('filter-month-expense');
+                if (monthIncome) monthIncome.value = monthIncome.value || currentMonth;
+                if (monthExpense) monthExpense.value = monthExpense.value || currentMonth;
+
+                populateYearOptionsForRekap('filter-year-income');
+                populateYearOptionsForRekap('filter-year-expense');
+
+                attachRekapChartTypeButtons('income');
+                attachRekapChartTypeButtons('expense');
+
+                attachRekapFilterListeners('income');
+                attachRekapFilterListeners('expense');
+
+                if (typeof selectList === 'function') {
+                    await selectList([
+                        'filter-period-income',
+                        'filter-month-income',
+                        'filter-year-income',
+                        'filter-period-expense',
+                        'filter-month-expense',
+                        'filter-year-expense',
+                    ]);
+                }
+
+                await refreshRekapKeuangan('income');
+                await refreshRekapKeuangan('expense');
             }
-            if ('{{ in_array(auth()->user()->id_level, [1, 2, 6]) }}') {
-                await getTopPenjualan();
-                await getTopMember();
-            }
-            if ('{{ auth()->user()->id_toko == 1 }}') {
-                await selectList(['f-penjualan-toko', 'f-barang-toko', 'f-member-toko', 'filter-period', 'filter-month',
-                    'filter-year'
-                ]);
-            } else {
-                await selectList(['filter-period', 'filter-month', 'filter-year']);
-            }
-            await filterSelect();
         }
     </script>
 @endsection

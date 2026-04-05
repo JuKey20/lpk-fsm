@@ -68,33 +68,33 @@ class UserSeeder extends Seeder
         LevelUser::create([
             "id" => 2,
             "no_urut" => 3,
-            "nama_level" => "Admin GSS",
+            "nama_level" => "Direktur",
             "informasi" => "Mengelola operasional gudang seperti stok, pengadaan, dan distribusi barang, Tidak memiliki akses ke laporan keuangan",
         ]);
         LevelUser::create([
             "id" => 3,
             "no_urut" => 4,
-            "nama_level" => "Admin Toko",
+            "nama_level" => "Keuangan",
             "informasi" => "Mengelola operasional toko termasuk transaksi penjualan, Tidak memiliki akses ke laporan keuangan",
         ]);
         LevelUser::create([
             "id" => 4,
             "no_urut" => 5,
-            "nama_level" => "Karyawan",
+            "nama_level" => "Sensei",
             "informasi" => "Melakukan transaksi penjualan di kasir, Akses terbatas hanya untuk kasir dan kasbon",
         ]);
-        LevelUser::create([
-            "id" => 5,
-            "no_urut" => 6,
-            "nama_level" => "Franchise",
-            "informasi" => "Pihak eksternal yang bermitra dan menjalankan toko cabang, Dapat melihat performa dan laporan keuangan tokonya sendiri",
-        ]);
-        LevelUser::create([
-            "id" => 6,
-            "no_urut" => 2,
-            "nama_level" => "Akunting",
-            "informasi" => "Mengelola keuangan dan laporan keuangan toko, Fokus pada pelaporan keuangan dan kasbon",
-        ]);
+        // LevelUser::create([
+        //     "id" => 5,
+        //     "no_urut" => 6,
+        //     "nama_level" => "Franchise",
+        //     "informasi" => "Pihak eksternal yang bermitra dan menjalankan toko cabang, Dapat melihat performa dan laporan keuangan tokonya sendiri",
+        // ]);
+        // LevelUser::create([
+        //     "id" => 6,
+        //     "no_urut" => 2,
+        //     "nama_level" => "Akunting",
+        //     "informasi" => "Mengelola keuangan dan laporan keuangan toko, Fokus pada pelaporan keuangan dan kasbon",
+        // ]);
 
         // Toko Seeder
         Toko::create([

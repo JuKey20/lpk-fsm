@@ -417,4 +417,141 @@ class DashboardController extends Controller
             ]);
         }
     }
+
+    public function getKeuanganRingkasan(Request $request)
+    {
+        $period = $request->input('period', 'daily');
+        $year = (int) $request->input('year', now()->year);
+        $month = (int) $request->input('month', now()->month);
+        $type = $request->input('type', 'both');
+
+        $allowedPeriods = ['daily', 'monthly', 'yearly'];
+        if (! in_array($period, $allowedPeriods, true)) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Invalid period',
+                'status_code' => 422,
+                'data' => null,
+            ], 422);
+        }
+
+        $allowedTypes = ['income', 'expense', 'both'];
+        if (! in_array($type, $allowedTypes, true)) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Invalid type',
+                'status_code' => 422,
+                'data' => null,
+            ], 422);
+        }
+
+        try {
+            if ($period === 'daily') {
+                $start = Carbon::create($year, $month, 1)->startOfDay();
+                $end = Carbon::create($year, $month, 1)->endOfMonth()->endOfDay();
+            } elseif ($period === 'monthly') {
+                $start = Carbon::create($year, 1, 1)->startOfDay();
+                $end = Carbon::create($year, 12, 31)->endOfDay();
+            } else {
+                $endYear = (int) $request->input('end_year', now()->year);
+                $startYear = (int) $request->input('start_year', $endYear - 4);
+                $start = Carbon::create($startYear, 1, 1)->startOfDay();
+                $end = Carbon::create($endYear, 12, 31)->endOfDay();
+            }
+
+            $buildSeries = function (string $table) use ($period, $start, $end) {
+                $query = DB::table($table)
+                    ->whereNull('deleted_at')
+                    ->whereBetween('tanggal', [$start, $end]);
+
+                if ($period === 'daily') {
+                    $rows = $query
+                        ->selectRaw('DATE(tanggal) as period_key, SUM(nilai) as total')
+                        ->groupBy('period_key')
+                        ->orderBy('period_key')
+                        ->get();
+                } elseif ($period === 'monthly') {
+                    $rows = $query
+                        ->selectRaw('MONTH(tanggal) as period_key, SUM(nilai) as total')
+                        ->groupBy('period_key')
+                        ->orderBy('period_key')
+                        ->get();
+                } else {
+                    $rows = $query
+                        ->selectRaw('YEAR(tanggal) as period_key, SUM(nilai) as total')
+                        ->groupBy('period_key')
+                        ->orderBy('period_key')
+                        ->get();
+                }
+
+                return $rows->mapWithKeys(function ($row) {
+                    return [(string) $row->period_key => (float) ($row->total ?? 0)];
+                })->all();
+            };
+
+            $needsIncome = $type === 'both' || $type === 'income';
+            $needsExpense = $type === 'both' || $type === 'expense';
+
+            $incomeByKey = $needsIncome ? $buildSeries('pemasukan') : [];
+            $expenseByKey = $needsExpense ? $buildSeries('pengeluaran') : [];
+
+            $categories = [];
+            $incomeSeries = [];
+            $expenseSeries = [];
+
+            if ($period === 'daily') {
+                $daysInMonth = (int) Carbon::create($year, $month, 1)->daysInMonth;
+                $categories = array_map(fn ($d) => (string) $d, range(1, $daysInMonth));
+                for ($day = 1; $day <= $daysInMonth; $day++) {
+                    $dateKey = Carbon::create($year, $month, $day)->toDateString();
+                    $incomeSeries[] = (float) ($incomeByKey[$dateKey] ?? 0);
+                    $expenseSeries[] = (float) ($expenseByKey[$dateKey] ?? 0);
+                }
+            } elseif ($period === 'monthly') {
+                $categories = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                for ($m = 1; $m <= 12; $m++) {
+                    $key = (string) $m;
+                    $incomeSeries[] = (float) ($incomeByKey[$key] ?? 0);
+                    $expenseSeries[] = (float) ($expenseByKey[$key] ?? 0);
+                }
+            } else {
+                $endYear = (int) $request->input('end_year', now()->year);
+                $startYear = (int) $request->input('start_year', $endYear - 4);
+                for ($y = $startYear; $y <= $endYear; $y++) {
+                    $categories[] = (string) $y;
+                    $key = (string) $y;
+                    $incomeSeries[] = (float) ($incomeByKey[$key] ?? 0);
+                    $expenseSeries[] = (float) ($expenseByKey[$key] ?? 0);
+                }
+            }
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Successfully',
+                'status_code' => 200,
+                'data' => [
+                    'type' => $type,
+                    'period' => $period,
+                    'year' => $year,
+                    'month' => $month,
+                    'categories' => $categories,
+                    'income' => [
+                        'total' => $needsIncome ? array_sum($incomeSeries) : 0,
+                        'series' => $incomeSeries,
+                    ],
+                    'expense' => [
+                        'total' => $needsExpense ? array_sum($expenseSeries) : 0,
+                        'series' => $expenseSeries,
+                    ],
+                ],
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Error retrieving data',
+                'status_code' => 500,
+                'data' => $th->getMessage(),
+            ], 500);
+        }
+    }
 }

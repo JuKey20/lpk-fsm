@@ -48,6 +48,7 @@ Route::get('/penjualan_kasir', [DashboardController::class, 'laporan_kasir'])->n
 Route::get('/get-barang-jual', [DashboardController::class, 'getBarangJual'])->name('dashboard.rating');
 Route::get('/get-member', [DashboardController::class, 'getMember'])->name('dashboard.member');
 Route::get('/get-omset', [DashboardController::class, 'getOmset'])->name('dashboard.omset');
+Route::get('/get-keuangan-ringkasan', [DashboardController::class, 'getKeuanganRingkasan'])->name('dashboard.keuangan');
 Route::get('/get-asset', [AssetBarangController::class, 'getAssetBarang'])->name('dashboard.asset');
 Route::get('/get-ratingmember', [RatingMemberController::class, 'getMember'])->name('dashboard.ratingmember');
 
@@ -97,4 +98,3 @@ Route::prefix('master')->as('master.')->group(function () {
     Route::get('barang-kasir', [MasterController::class, 'getBarangKasir'])->name('barangKasir');
     Route::get('kasbon', [MasterController::class, 'getKasbon'])->name('kasbon');
 });
-
