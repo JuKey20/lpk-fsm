@@ -30,8 +30,10 @@
                                 <div class="col-12 col-md-6">
                                     <div class="row align-items-center">
                                         <div class="col-6 col-lg-4 col-xl-4 mb-2">
-                                            <button class="btn btn-primary text-white add-data w-100" data-container="body"
-                                                data-toggle="tooltip" data-placement="top"
+                                            <button type="button"
+                                                class="btn btn-primary text-white add-data w-100" data-container="body"
+                                                data-toggle="modal" data-target="#modal-form"
+                                                data-bs-toggle="modal" data-bs-target="#modal-form"
                                                 title="Tambah Pengeluaran Lainnya">
                                                 <i class="fa fa-plus-circle"></i> Tambah
                                             </button>
@@ -69,11 +71,6 @@
                                         <input class="form-control" type="text" id="daterange" name="daterange"
                                             placeholder="Pilih rentang tanggal">
                                     </div>
-                                    @if (auth()->user()->id_toko == 1)
-                                        <div class="col-12 col-xl-3 col-lg-3 mb-2">
-                                            <select class="form-control select2" id="toko" name="toko"></select>
-                                        </div>
-                                    @endif
                                     <div class="col-12 col-xl-3 col-lg-3 mb-2">
                                         <select class="form-control select2" id="jenis" name="jenis"></select>
                                     </div>
@@ -96,9 +93,7 @@
                                             <tr class="tb-head">
                                                 <th class="text-center text-wrap align-top">No</th>
                                                 <th class="text-wrap align-top">Tanggal</th>
-                                                <th class="text-wrap align-top">Status</th>
                                                 <th class="text-wrap align-top">Jenis</th>
-                                                <th class="text-wrap align-top">Nama Toko</th>
                                                 <th class="text-wrap align-top">Nama Pengeluaran</th>
                                                 <th class="text-right text-wrap align-top">Nilai</th>
                                                 <th class="text-right text-wrap align-top"><span
@@ -138,7 +133,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modal-title">Tambah Data Pengeluaran</h5>
-                    <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal"
+                    <button type="button" class="btn-close reset-all close" data-dismiss="modal" data-bs-dismiss="modal"
                         aria-label="Close"><i class="fa fa-xmark"></i></button>
                 </div>
                 <div class="modal-body">
@@ -190,7 +185,8 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close"><i
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal"
+                        aria-label="Close"><i
                             class="fa fa-circle-xmark mr-1"></i>Tutup</button>
                     <button type="submit" class="btn btn-primary" id="submit-button" form="formTambahData"><i
                             class="fa fa-save mr-1"></i>Simpan</button>
@@ -205,7 +201,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="editModalLabel">Edit Nilai</h5>
-                    <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal"
+                    <button type="button" class="btn-close reset-all close" data-dismiss="modal" data-bs-dismiss="modal"
                         aria-label="Close"><i class="fa fa-xmark"></i></button>
                 </div>
                 <div class="modal-body">
@@ -224,7 +220,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close"><i
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal"
+                        aria-label="Close"><i
                             class="fa fa-circle-xmark mr-1"></i>Tutup</button>
                     <button type="button" class="btn btn-primary" id="save-edit"><i
                             class="fa fa-save mr-1"></i>Simpan</button>
@@ -239,7 +236,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="detailModalLabel">Detail Nilai</h5>
-                    <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal"
+                    <button type="button" class="btn-close reset-all close" data-dismiss="modal" data-bs-dismiss="modal"
                         aria-label="Close"><i class="fa fa-xmark"></i></button>
                 </div>
                 <div class="modal-body">
@@ -254,7 +251,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close"><i
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal"
+                        aria-label="Close"><i
                             class="fa fa-circle-xmark mr-1"></i>Tutup</button>
                 </div>
             </div>
@@ -278,22 +276,17 @@
         let defaultAscending = 0;
         let defaultSearch = '';
         let customFilter = {};
-        let selectOptions = [{
-                id: '#toko',
-                isUrl: '{{ route('master.toko') }}',
-                placeholder: 'Pilih Nama Toko',
-            }, {
-                id: '#jenis',
-                isUrl: '{{ route('master.jenis') }}',
-                placeholder: 'Pilih Jenis Pengeluaran',
-            },
-            {
-                id: '#id_jenis_pengeluaran',
-                isUrl: '{{ route('master.jenis') }}',
-                placeholder: 'Pilih Jenis Pengeluaran',
-                isModal: '#modal-form'
+        function getSelectOptions() {
+            const options = [];
+            if ($('#jenis').length) {
+                options.push({
+                    id: '#jenis',
+                    isUrl: '{{ route('master.jenis') }}',
+                    placeholder: 'Pilih Jenis Pengeluaran',
+                });
             }
-        ];
+            return options;
+        }
 
         async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
             $('#listData').html(loadingData());
@@ -303,10 +296,6 @@
             if (customFilter['startDate'] && customFilter['endDate']) {
                 filterParams.startDate = customFilter['startDate'];
                 filterParams.endDate = customFilter['endDate'];
-            }
-
-            if (customFilter['toko']) {
-                filterParams.toko = customFilter['toko'];
             }
 
             if (customFilter['jenis']) {
@@ -320,7 +309,6 @@
                     limit: limit,
                     ascending: ascending,
                     search: search,
-                    id_toko: {{ auth()->user()->id_toko }},
                     ...filterParams
                 }
             ).then(function(response) {
@@ -362,7 +350,7 @@
                     </div>
                 </a>`;
 
-            if (data.id_toko == {{ auth()->user()->id_toko }} && delete_button) {
+            if (data.can_delete && delete_button) {
                 action_buttons = `
                 <div class="d-flex justify-content-end">
                     ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
@@ -374,14 +362,12 @@
                 </div>`;
             }
 
-            let status = (data.id_toko == 1) ?
-                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Besar Out</span>` :
-                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Kecil Out</span>`;
+            let statusLabel = data.status_label ?? '-';
+            let status = `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> ${statusLabel}</span>`;
 
             return {
                 id: data?.id ?? '-',
                 tanggal: data?.tanggal ?? '-',
-                nama_toko: data?.nama_toko ?? '-',
                 nama_pengeluaran: data?.nama_pengeluaran ?? '-',
                 nama_jenis: (data?.nama_jenis && data.nama_jenis !== '-') ? data.nama_jenis : (data?.ket_hutang ?? '-'),
                 nilai: data?.nilai ?? '-',
@@ -404,9 +390,7 @@
                 <tr class="text-dark">
                     <td class="${classCol} text-center">${display_from + index}.</td>
                     <td class="${classCol}">${element.tanggal}</td>
-                    <td class="${classCol}">${element.status}</td>
                     <td class="${classCol}">${element.nama_jenis}</td>
-                    <td class="${classCol}">${element.nama_toko}</td>
                     <td class="${classCol}">${element.nama_pengeluaran}</td>
                     <td class="${classCol} text-right">${element.nilai}</td>
                     <td class="${classCol}">${element.action_buttons}</td>
@@ -415,7 +399,7 @@
 
             let totalRow = `
             <tr class="bg-primary">
-                <td class="${classCol}" colspan="5"></td>
+                <td class="${classCol}" colspan="3"></td>
                 <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Total</strong></td>
                 <td class="${classCol} text-right"><strong class="text-white" id="totalData">${total}</strong></td>
                 <td class="${classCol}"></td>
@@ -431,17 +415,15 @@
         }
 
         function handleInput() {
-            const jenisSelect = $("#id_jenis_pengeluaran");
-            const jenisBaruInput = document.getElementById("nama_jenis");
-            const jenisPengeluaranContainer = document.getElementById("jenisPengeluaranContainer");
-            const assetContainer = document.getElementById("assetContainer");
+            const jenisSelect = $('#id_jenis_pengeluaran');
+            if (!jenisSelect.length) return;
 
             function toggleAssetField() {
                 const selectedJenisText = $('#id_jenis_pengeluaran option:selected').text();
                 const assetContainer = $('#assetContainer');
                 const isAssetSelect = $('#is_asset');
 
-                if (selectedJenisText.trim() === "Pembelian Asset") {
+                if (selectedJenisText.trim() === 'Pembelian Asset') {
                     assetContainer.removeClass('d-none');
                     isAssetSelect.prop('required', true);
                 } else {
@@ -450,28 +432,135 @@
                 }
             }
 
-            jenisSelect.on("change", function() {
+            jenisSelect.off('change.asset').on('change.asset', function() {
                 toggleAssetField();
             });
+            toggleAssetField();
         }
 
         $('#modal-form').on('hidden.bs.modal', function() {
-            document.getElementById("is_hutang").checked = false;
-
             $('#id_jenis_pengeluaran').prop("disabled", false).val(null).trigger("change");
+            const isHutangEl = document.getElementById("is_hutang");
+            if (isHutangEl) {
+                isHutangEl.checked = false;
+            }
 
-            document.getElementById("keteranganHutangContainer").classList.add("d-none");
-            document.getElementById("jenisPengeluaranContainer").classList.remove("d-none");
-            document.getElementById("assetContainer").classList.add("d-none");
+            const ketHutangEl = document.getElementById("keteranganHutangContainer");
+            if (ketHutangEl) {
+                ketHutangEl.classList.add("d-none");
+            }
+            const jenisContainerEl = document.getElementById("jenisPengeluaranContainer");
+            if (jenisContainerEl) {
+                jenisContainerEl.classList.remove("d-none");
+            }
+            const assetEl = document.getElementById("assetContainer");
+            if (assetEl) {
+                assetEl.classList.add("d-none");
+            }
         });
 
+        function showModal(selector) {
+            const el = document.querySelector(selector);
+            if (!el) return;
+
+            if (window.jQuery && window.jQuery.fn && typeof window.jQuery(el).modal === 'function') {
+                window.jQuery(selector).modal('show');
+                return;
+            }
+
+            if (window.bootstrap && window.bootstrap.Modal) {
+                window.bootstrap.Modal.getOrCreateInstance(el).show();
+            }
+        }
+
+        function hideModal(selector) {
+            const el = document.querySelector(selector);
+            if (!el) return;
+
+            if (window.jQuery && window.jQuery.fn && typeof window.jQuery(el).modal === 'function') {
+                window.jQuery(selector).modal('hide');
+                return;
+            }
+
+            if (window.bootstrap && window.bootstrap.Modal) {
+                window.bootstrap.Modal.getOrCreateInstance(el).hide();
+            }
+        }
+
+        function initJenisPengeluaranSearchable() {
+            const $select = $('#id_jenis_pengeluaran');
+            if (!$select.length) return;
+
+            if (window.jQuery && window.jQuery.fn && typeof window.jQuery.fn.select2 === 'function') {
+                try {
+                    if ($select.hasClass('select2-hidden-accessible')) {
+                        $select.select2('destroy');
+                    }
+                } catch (e) {}
+
+                $select.select2({
+                    dropdownParent: $('#modal-form'),
+                    placeholder: '~Pilih Jenis Pengeluaran~',
+                    allowClear: true,
+                    width: '100%',
+                });
+                return;
+            }
+
+            if (window.TomSelect) {
+                try {
+                    if ($select[0].tomselect) {
+                        $select[0].tomselect.destroy();
+                    }
+                } catch (e) {}
+
+                new TomSelect($select[0], {
+                    create: false,
+                    allowEmptyOption: true,
+                });
+            }
+        }
+
+        async function loadJenisPengeluaranOptions() {
+            const $select = $('#id_jenis_pengeluaran');
+            if (!$select.length) return;
+
+            $select.prop('disabled', true);
+            $select.empty().append('<option value="">Memuat...</option>');
+
+            let resp = null;
+            try {
+                resp = await renderAPI('GET', '{{ route('master.jenis') }}', {
+                    search: '',
+                    page: 1,
+                    limit: 200,
+                    ascending: 1,
+                });
+            } catch (e) {
+                resp = null;
+            }
+
+            const data = resp?.data?.data ?? [];
+            $select.empty().append('<option value="">~Pilih Jenis Pengeluaran~</option>');
+            data.forEach(item => {
+                $select.append(`<option value="${item.id}">${item.text}</option>`);
+            });
+            $select.prop('disabled', false);
+            initJenisPengeluaranSearchable();
+            $select.trigger('change');
+        }
+
+        $('#modal-form').off('shown.bs.modal.initJenis').on('shown.bs.modal.initJenis', async function() {
+            await loadJenisPengeluaranOptions();
+        });
 
         async function addData() {
             $(document).on("click", ".add-data", function() {
                 $("#modal-title").html(`Form Tambah Pengeluaran`);
-                $("#modal-form").modal("show");
-                $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
+                showModal("#modal-form");
+                $("#formTambahData").find("input, select, textarea").val("").prop("checked", false).trigger("change");
                 $("#formTambahData").data("action-url", '{{ route('master.pengeluaran.store') }}');
+                loadJenisPengeluaranOptions();
 
                 const now = new Date();
                 const year = now.getFullYear();
@@ -501,7 +590,6 @@
                 let selectedJenisText = $('#id_jenis_pengeluaran option:selected').text();
 
                 let formData = {
-                    id_toko: '{{ auth()->user()->id_toko }}',
                     nama_pengeluaran: $('#nama_pengeluaran').val(),
                     nilai: $('#nilai').val(),
                     tanggal: $('#tanggal').val(),
@@ -523,7 +611,7 @@
                                 defaultSearch, customFilter);
                         }, 500);
                         setTimeout(() => {
-                            $("#modal-form").modal("hide");
+                            hideModal("#modal-form");
                         }, 500);
                     } else {
                         notificationAlert("info", "Pemberitahuan", postData.data.message ||
@@ -598,7 +686,6 @@
                 customFilter = {
                     startDate: $("#daterange").val() != '' ? startDate : '',
                     endDate: $("#daterange").val() != '' ? endDate : '',
-                    toko: $("#toko").val() || '',
                     jenis: $("#jenis").val() || '',
                 };
 
@@ -624,7 +711,7 @@
         async function initPageLoad() {
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await setDynamicButton();
-            await selectData(selectOptions);
+            await selectData(getSelectOptions());
             await searchList();
             await handleInput();
             await filterList();

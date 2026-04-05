@@ -42,32 +42,17 @@ class PemasukanController extends Controller
 
         $query = Pemasukan::query();
 
-        $query->with(['toko', 'jenis_pemasukan'])->orderBy('id', $meta['orderBy']);
+        $query->with(['jenis_pemasukan'])->orderBy('id', $meta['orderBy']);
 
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
 
             $query->where(function ($query) use ($searchTerm) {
                 $query->orWhereRaw("LOWER(nama_pemasukan) LIKE ?", ["%$searchTerm%"]);
-                $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
-                    $subquery->whereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
-                });
                 $query->orWhereHas('jenis_pemasukan', function ($subquery) use ($searchTerm) {
                     $subquery->whereRaw("LOWER(nama_jenis) LIKE ?", ["%$searchTerm%"]);
                 });
             });
-        }
-
-        if ($request->has('id_toko')) {
-            $idToko = $request->input('id_toko');
-            if ($idToko != 1) {
-                $query->where('id_toko', $idToko);
-            }
-        }
-
-        if ($request->has('toko')) {
-            $idToko = $request->input('toko');
-            $query->where('id_toko', $idToko);
         }
 
         if ($request->has('jenis')) {
@@ -106,14 +91,17 @@ class PemasukanController extends Controller
         }
 
         $mappedData = collect($data['data'])->map(function ($item) {
+            $statusLabel = 'Pemasukan';
+            $canDelete = true;
+
             return [
                 'id' => $item['id'],
-                'id_toko' => $item['toko'] ? $item['toko']->id : null,
-                'nama_toko' => $item['toko']->nama_toko,
                 'nama_pemasukan' => $item->nama_pemasukan ?? '-',
                 'nama_jenis' => $item['jenis_pemasukan']->nama_jenis ?? '-',
                 'nilai' => 'Rp. ' . number_format($item->nilai ?? 0, 0, '.', '.'),
-                'tanggal' => $item['tanggal'] ? Carbon::parse($item['tanggal'])->format('d-m-Y') : '-',
+                'tanggal' => $item['tanggal'] ? Carbon::parse($item['tanggal'])->locale('id')->translatedFormat('d F Y') : '-',
+                'status_label' => $statusLabel,
+                'can_delete' => $canDelete,
             ];
         });
 
@@ -130,7 +118,6 @@ class PemasukanController extends Controller
     public function store(Request $request)
     {
         $validation = [
-            'id_toko' => 'required|exists:toko,id',
             'nama_pemasukan' => 'nullable|string',
             'nilai' => 'required|numeric',
             'tanggal' => 'required|date',
@@ -143,7 +130,6 @@ class PemasukanController extends Controller
             DB::beginTransaction();
 
             Pemasukan::create([
-                'id_toko' => $validatedData['id_toko'],
                 'id_jenis_pemasukan' => $validatedData['id_jenis_pemasukan'],
                 'nama_pemasukan' => $validatedData['nama_pemasukan'],
                 'nilai' => $validatedData['nilai'],
@@ -233,7 +219,7 @@ class PemasukanController extends Controller
     public function detail(string $id)
     {
         try {
-            $pemasukan = Pemasukan::with(['toko', 'jenis_pemasukan'])->findOrFail($id);
+            $pemasukan = Pemasukan::with(['jenis_pemasukan'])->findOrFail($id);
             $detailPembayaran = DetailPemasukan::where('id_pemasukan', $id)
                 ->orderBy('created_at', 'desc')
                 ->get()
@@ -253,13 +239,12 @@ class PemasukanController extends Controller
                 'data' => [
                     'pemasukan' => [
                         'id' => $pemasukan->id,
-                        'nama_toko' => $pemasukan->toko->nama_toko,
                         'nama_pemasukan' => $pemasukan->nama_pemasukan ?? '-',
                         'nama_jenis' => $pemasukan->jenis_pemasukan->nama_jenis ?? '-',
                         'nilai' => 'Rp. ' . number_format($pemasukan->nilai, 0, '.', '.'),
                         'is_pinjam' => $pemasukan->is_pinjam,
                         'ket_pinjam' => $pemasukan->ket_pinjam,
-                        'tanggal' => Carbon::parse($pemasukan->tanggal)->format('d-m-Y'),
+                        'tanggal' => Carbon::parse($pemasukan->tanggal)->locale('id')->translatedFormat('d F Y'),
                     ],
                     'detail_pembayaran' => $detailPembayaran,
                     'total_pembayaran' => 'Rp. ' . number_format($totalPembayaran, 0, '.', '.'),

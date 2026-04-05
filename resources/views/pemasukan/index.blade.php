@@ -68,11 +68,6 @@
                                         <input class="form-control" type="text" id="daterange" name="daterange"
                                             placeholder="Pilih rentang tanggal">
                                     </div>
-                                    @if (auth()->user()->id_toko == 1)
-                                        <div class="col-12 col-xl-3 col-lg-3 mb-2">
-                                            <select class="form-control select2" id="toko" name="toko"></select>
-                                        </div>
-                                    @endif
                                     <div class="col-12 col-xl-3 col-lg-3 mb-2">
                                         <select class="form-control select2" id="jenis" name="jenis"></select>
                                     </div>
@@ -95,9 +90,7 @@
                                             <tr class="tb-head">
                                                 <th class="text-center text-wrap align-top">No</th>
                                                 <th class="text-wrap align-top">Tanggal</th>
-                                                <th class="text-wrap align-top">Status</th>
                                                 <th class="text-wrap align-top">Jenis</th>
-                                                <th class="text-wrap align-top">Nama Toko</th>
                                                 <th class="text-wrap align-top">Nama Pemasukan</th>
                                                 <th class="text-right text-wrap align-top">Nilai</th>
                                                 <th class="text-right text-wrap align-top"><span
@@ -137,7 +130,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modal-title">Tambah Data Pemasukan</h5>
-                    <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal"
+                    <button type="button" class="btn-close reset-all close" data-dismiss="modal" data-bs-dismiss="modal"
                         aria-label="Close"><i class="fa fa-xmark"></i></button>
                 </div>
                 <div class="modal-body">
@@ -183,7 +176,8 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close"><i
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal"
+                        aria-label="Close"><i
                             class="fa fa-circle-xmark mr-1"></i>Tutup</button>
                     <button type="submit" class="btn btn-primary" id="submit-button" form="formTambahData"><i
                             class="fa fa-save mr-1"></i>Simpan</button>
@@ -198,7 +192,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="editModalLabel">Edit Nilai</h5>
-                    <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal"
+                    <button type="button" class="btn-close reset-all close" data-dismiss="modal" data-bs-dismiss="modal"
                         aria-label="Close"><i class="fa fa-xmark"></i></button>
                 </div>
                 <div class="modal-body">
@@ -217,7 +211,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close"><i
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal"
+                        aria-label="Close"><i
                             class="fa fa-circle-xmark mr-1"></i>Tutup</button>
                     <button type="button" class="btn btn-primary" id="save-edit"><i
                             class="fa fa-save mr-1"></i>Simpan</button>
@@ -232,7 +227,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="detailModalLabel">Detail Nilai</h5>
-                    <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal"
+                    <button type="button" class="btn-close reset-all close" data-dismiss="modal" data-bs-dismiss="modal"
                         aria-label="Close"><i class="fa fa-xmark"></i></button>
                 </div>
                 <div class="modal-body">
@@ -247,7 +242,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close"><i
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal"
+                        aria-label="Close"><i
                             class="fa fa-circle-xmark mr-1"></i>Tutup</button>
                 </div>
             </div>
@@ -272,21 +268,10 @@
         let defaultSearch = '';
         let customFilter = {};
         let selectOptions = [{
-                id: '#toko',
-                isUrl: '{{ route('master.toko') }}',
-                placeholder: 'Pilih Nama Toko',
-            }, {
-                id: '#jenis',
-                isUrl: '{{ route('master.jenismasuk') }}',
-                placeholder: 'Pilih Jenis Pemasukan',
-            },
-            {
-                id: '#id_jenis_pemasukan',
-                isUrl: '{{ route('master.jenismasuk') }}',
-                placeholder: 'Pilih Jenis Pemasukan',
-                isModal: '#modal-form'
-            }
-        ];
+            id: '#jenis',
+            isUrl: '{{ route('master.jenismasuk') }}',
+            placeholder: 'Pilih Jenis Pemasukan',
+        }];
 
         async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
             $('#listData').html(loadingData());
@@ -296,10 +281,6 @@
             if (customFilter['startDate'] && customFilter['endDate']) {
                 filterParams.startDate = customFilter['startDate'];
                 filterParams.endDate = customFilter['endDate'];
-            }
-
-            if (customFilter['toko']) {
-                filterParams.toko = customFilter['toko'];
             }
 
             if (customFilter['jenis']) {
@@ -313,7 +294,6 @@
                     limit: limit,
                     ascending: ascending,
                     search: search,
-                    id_toko: {{ auth()->user()->id_toko }},
                     ...filterParams
                 }
             ).then(function(response) {
@@ -355,7 +335,7 @@
                     </div>
                 </a>`;
 
-            if (data.id_toko == {{ auth()->user()->id_toko }} && delete_button) {
+            if (data.can_delete && delete_button) {
                 action_buttons = `
                 <div class="d-flex justify-content-end">
                     ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
@@ -367,14 +347,12 @@
                 </div>`;
             }
 
-            let status = (data.id_toko == 1) ?
-                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Besar In</span>` :
-                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Kecil In</span>`;
+            let statusLabel = data.status_label ?? '-';
+            let status = `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> ${statusLabel}</span>`;
 
             return {
                 id: data?.id ?? '-',
                 tanggal: data?.tanggal ?? '-',
-                nama_toko: data?.nama_toko ?? '-',
                 nama_pemasukan: data?.nama_pemasukan ?? '-',
                 nama_jenis: (data?.nama_jenis && data.nama_jenis !== '-') ? data.nama_jenis : (data?.ket_pinjam ?? '-'),
                 nilai: data?.nilai ?? '-',
@@ -397,9 +375,7 @@
                 <tr class="text-dark">
                     <td class="${classCol} text-center">${display_from + index}.</td>
                     <td class="${classCol}">${element.tanggal}</td>
-                    <td class="${classCol}">${element.status}</td>
                     <td class="${classCol}">${element.nama_jenis}</td>
-                    <td class="${classCol}">${element.nama_toko}</td>
                     <td class="${classCol}">${element.nama_pemasukan}</td>
                     <td class="${classCol} text-right">${element.nilai}</td>
                     <td class="${classCol}">${element.action_buttons}</td>
@@ -408,7 +384,7 @@
 
             let totalRow = `
             <tr class="bg-primary">
-                <td class="${classCol}" colspan="5"></td>
+                <td class="${classCol}" colspan="3"></td>
                 <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Total</strong></td>
                 <td class="${classCol} text-right"><strong class="text-white" id="totalData">${total}</strong></td>
                 <td class="${classCol}"></td>
@@ -442,6 +418,9 @@
                     jenisSelect.prop("disabled", true).val(null).trigger("change");
                 } else {
                     jenisSelect.prop("disabled", false);
+                    if (jenisSelect.hasClass('select2-hidden-accessible')) {
+                        jenisSelect.trigger("change.select2");
+                    }
                 }
             }
 
@@ -458,12 +437,109 @@
             document.getElementById("jenisPemasukanContainer").classList.remove("d-none");
         });
 
+        function initJenisPemasukanSearchable() {
+            const $select = $('#id_jenis_pemasukan');
+            if (!$select.length) return;
+
+            if (window.jQuery && window.jQuery.fn && typeof window.jQuery.fn.select2 === 'function') {
+                try {
+                    if ($select.hasClass('select2-hidden-accessible')) {
+                        $select.select2('destroy');
+                    }
+                } catch (e) {}
+
+                $select.select2({
+                    dropdownParent: $('#modal-form'),
+                    placeholder: '~Pilih Jenis Pemasukan~',
+                    allowClear: true,
+                    width: '100%',
+                });
+                return;
+            }
+
+            if (window.TomSelect) {
+                try {
+                    if ($select[0].tomselect) {
+                        $select[0].tomselect.destroy();
+                    }
+                } catch (e) {}
+
+                new TomSelect($select[0], {
+                    create: false,
+                    allowEmptyOption: true,
+                });
+            }
+        }
+
+        async function loadJenisPemasukanOptions() {
+            const $select = $('#id_jenis_pemasukan');
+            if (!$select.length) return;
+
+            $select.prop('disabled', true);
+            $select.empty().append('<option value="">Memuat...</option>');
+
+            let resp = null;
+            try {
+                resp = await renderAPI('GET', '{{ route('master.jenismasuk') }}', {
+                    search: '',
+                    page: 1,
+                    limit: 200,
+                    ascending: 1,
+                });
+            } catch (e) {
+                resp = null;
+            }
+
+            const data = resp?.data?.data ?? [];
+            $select.empty().append('<option value="">~Pilih Jenis Pemasukan~</option>');
+            data.forEach(item => {
+                $select.append(`<option value="${item.id}">${item.text}</option>`);
+            });
+            $select.prop('disabled', false);
+            initJenisPemasukanSearchable();
+        }
+
+        $('#modal-form').on('shown.bs.modal', async function() {
+            await loadJenisPemasukanOptions();
+        });
+
+        function showModal(selector) {
+            const el = document.querySelector(selector);
+            if (!el) return;
+
+            if (window.jQuery && window.jQuery.fn && typeof window.jQuery(el).modal === 'function') {
+                window.jQuery(selector).modal('show');
+                return;
+            }
+
+            if (window.bootstrap && window.bootstrap.Modal) {
+                window.bootstrap.Modal.getOrCreateInstance(el).show();
+                return;
+            }
+        }
+
+        function hideModal(selector) {
+            const el = document.querySelector(selector);
+            if (!el) return;
+
+            if (window.jQuery && window.jQuery.fn && typeof window.jQuery(el).modal === 'function') {
+                window.jQuery(selector).modal('hide');
+                return;
+            }
+
+            if (window.bootstrap && window.bootstrap.Modal) {
+                window.bootstrap.Modal.getOrCreateInstance(el).hide();
+                return;
+            }
+        }
+
         async function addData() {
             $(document).on("click", ".add-data", function() {
                 $("#modal-title").html(`Form Tambah Pemasukan`);
-                $("#modal-form").modal("show");
-                $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
+                showModal("#modal-form");
+                $("#formTambahData").find("input, select, textarea").val("").prop("checked", false).trigger("change");
                 $("#formTambahData").data("action-url", '{{ route('master.pemasukan.store') }}');
+                loadJenisPemasukanOptions();
 
                 const now = new Date();
                 const year = now.getFullYear();
@@ -491,7 +567,6 @@
                 let actionUrl = $("#formTambahData").data("action-url");
 
                 let formData = {
-                    id_toko: '{{ auth()->user()->id_toko }}',
                     nama_pemasukan: $('#nama_pemasukan').val(),
                     nilai: $('#nilai').val(),
                     tanggal: $('#tanggal').val(),
@@ -517,7 +592,7 @@
                                 defaultSearch, customFilter);
                         }, 500);
                         setTimeout(() => {
-                            $("#modal-form").modal("hide");
+                            hideModal("#modal-form");
                         }, 500);
                     } else {
                         notificationAlert("info", "Pemberitahuan", postData.data.message ||
@@ -592,7 +667,6 @@
                 customFilter = {
                     startDate: $("#daterange").val() != '' ? startDate : '',
                     endDate: $("#daterange").val() != '' ? endDate : '',
-                    toko: $("#toko").val() || '',
                     jenis: $("#jenis").val() || '',
                 };
 

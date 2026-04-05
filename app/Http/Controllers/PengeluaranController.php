@@ -41,7 +41,7 @@ class PengeluaranController extends Controller
 
         $query = Pengeluaran::query();
 
-        $query->with(['toko', 'jenis_pengeluaran'])->orderBy('id', $meta['orderBy']);
+        $query->with(['jenis_pengeluaran'])->orderBy('id', $meta['orderBy']);
 
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
@@ -49,25 +49,10 @@ class PengeluaranController extends Controller
             $query->where(function ($query) use ($searchTerm) {
                 // Pencarian pada kolom langsung
                 $query->orWhereRaw("LOWER(nama_pengeluaran) LIKE ?", ["%$searchTerm%"]);
-                $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
-                    $subquery->whereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
-                });
                 $query->orWhereHas('jenis_pengeluaran', function ($subquery) use ($searchTerm) {
                     $subquery->whereRaw("LOWER(nama_jenis) LIKE ?", ["%$searchTerm%"]);
                 });
             });
-        }
-
-        if ($request->has('id_toko')) {
-            $idToko = $request->input('id_toko');
-            if ($idToko != 1) {
-                $query->where('id_toko', $idToko);
-            }
-        }
-
-        if ($request->has('toko')) {
-            $idToko = $request->input('toko');
-            $query->where('id_toko', $idToko);
         }
 
         if ($request->has('jenis')) {
@@ -113,12 +98,12 @@ class PengeluaranController extends Controller
         $mappedData = collect($data['data'])->map(function ($item) {
             return [
                 'id' => $item['id'],
-                'id_toko' => $item['toko']->id,
-                'nama_toko' => $item['toko']->nama_toko,
                 'nama_pengeluaran' => $item->nama_pengeluaran,
                 'nama_jenis' => $item['jenis_pengeluaran']->nama_jenis ?? '-',
                 'nilai' => 'Rp. ' . number_format($item->nilai, 0, '.', '.'),
-                'tanggal' => Carbon::parse($item['tanggal'])->format('d-m-Y'),
+                'tanggal' => Carbon::parse($item['tanggal'])->locale('id')->translatedFormat('d F Y'),
+                'status_label' => 'Kas Besar Out',
+                'can_delete' => true,
             ];
         });
 
@@ -137,7 +122,6 @@ class PengeluaranController extends Controller
         $is_asset = $request->input('is_asset');
 
         $validation = [
-            'id_toko' => 'required|exists:toko,id',
             'nama_pengeluaran' => 'nullable|string',
             'nilai' => 'required|numeric',
             'tanggal' => 'required|date',
@@ -169,7 +153,6 @@ class PengeluaranController extends Controller
             }
 
             Pengeluaran::create([
-                'id_toko' => $validatedData['id_toko'],
                 'id_jenis_pengeluaran' => $validatedData['id_jenis_pengeluaran'],
                 'nama_pengeluaran' => $validatedData['nama_pengeluaran'],
                 'nilai' => $validatedData['nilai'],
