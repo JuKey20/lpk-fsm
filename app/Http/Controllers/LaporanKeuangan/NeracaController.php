@@ -103,9 +103,7 @@ class NeracaController extends Controller
                     ->sum('detail_hutang.nilai');
                 $hutangSaldo = max(0, $hutangCreated - $hutangPaid);
 
-                $modal = (int) Pemasukan::whereBetween('tanggal', [$startOfYear, $endOfMonth])
-                    ->whereIn('id_jenis_pemasukan', [1, 2])
-                    ->sum('nilai');
+                $modal = $pemasukanIn;
 
                 $asetLancar = $kasBesar + $piutangSaldo;
                 $asetTetap = $asetPeralatanBesar + $asetPeralatanKecil;

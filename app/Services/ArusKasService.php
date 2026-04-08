@@ -615,7 +615,6 @@ class ArusKasService
         $hutangPendek = $pemasukanList->where('is_pinjam', 1);
         $hutangPanjang = $pemasukanList->where('is_pinjam', 2);
 
-        // Mapping data hutang menjadi format item
         $hutangPendekItems = $hutangPendek->map(function ($item, $index) {
             return [
                 "kode" => "III.1." . ($index + 1),

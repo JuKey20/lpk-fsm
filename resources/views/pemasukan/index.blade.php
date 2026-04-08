@@ -147,7 +147,8 @@
                                 <div class="form-group">
                                     <label for="tanggal">Tanggal <sup class="text-danger">*</sup></label>
                                     <input type="datetime-local" class="form-control" id="tanggal" name="tanggal"
-                                        placeholder="Masukkan tanggal" required value="{{ now()->format('Y-m-d\TH:i') }}">
+                                        placeholder="Masukkan tanggal" required step="1"
+                                        value="{{ now()->format('Y-m-d\TH:i') }}">
                                 </div>
                             </div>
                         </div>
@@ -155,7 +156,8 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="nilai">Nilai (Rp) <sup class="text-danger">*</sup></label>
-                                    <input type="number" class="form-control" id="nilai" name="nilai"
+                                    <input type="text" class="form-control" id="nilai" name="nilai" inputmode="numeric"
+                                        autocomplete="off"
                                         placeholder="Masukkan nilai" required>
                                 </div>
                             </div>
@@ -478,6 +480,7 @@
         }
 
         $('#modal-form').on('shown.bs.modal', async function() {
+            setTanggalNow();
             await loadJenisPemasukanOptions();
         });
 
@@ -510,6 +513,57 @@
                 return;
             }
         }
+        function getNumericDigits(value) {
+            return String(value || '').replace(/\D/g, '');
+        }
+
+        function formatThousandsID(digits) {
+            return String(digits || '').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        function formatRibuanInput(el) {
+            if (!el) return;
+            const raw = el.value || '';
+            const cursor = el.selectionStart ?? raw.length;
+            const digitsBeforeCursor = raw.slice(0, cursor).replace(/\D/g, '').length;
+
+            const digits = getNumericDigits(raw);
+            const formatted = formatThousandsID(digits);
+            el.value = formatted;
+
+            if (typeof el.setSelectionRange === 'function') {
+                let pos = 0;
+                let digitCount = 0;
+                while (pos < formatted.length) {
+                    if (/\d/.test(formatted[pos])) digitCount++;
+                    pos++;
+                    if (digitCount >= digitsBeforeCursor) break;
+                }
+                el.setSelectionRange(pos, pos);
+            }
+        }
+
+        function setTanggalNow() {
+            const el = document.getElementById('tanggal');
+            if (!el) return;
+
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+
+            const withSeconds = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+            const withoutSeconds = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+            el.value = withSeconds;
+            if (!el.value) {
+                el.value = withoutSeconds;
+            }
+        }
+
 
         async function addData() {
             $(document).on("click", ".add-data", function() {
@@ -517,16 +571,12 @@
                 showModal("#modal-form");
                 $("#formTambahData").find("input, select, textarea").val("").prop("checked", false).trigger("change");
                 $("#formTambahData").data("action-url", '{{ route('master.pemasukan.store') }}');
-                loadJenisPemasukanOptions();
 
-                const now = new Date();
-                const year = now.getFullYear();
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const day = String(now.getDate()).padStart(2, '0');
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                const formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
-                document.getElementById('tanggal').value = formattedDateTime;
+                $('#nilai').off('input.ribuan').on('input.ribuan', function() {
+                    formatRibuanInput(this);
+                });
+                loadJenisPemasukanOptions();
+                setTanggalNow();
             });
         }
 
@@ -546,7 +596,7 @@
 
                 let formData = {
                     nama_pemasukan: $('#nama_pemasukan').val(),
-                    nilai: $('#nilai').val(),
+                    nilai: getNumericDigits($('#nilai').val()),
                     tanggal: $('#tanggal').val(),
                 };
 

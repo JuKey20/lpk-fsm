@@ -180,11 +180,11 @@
                                 <i class="icon feather icon-file-minus"></i> Hutang
                             </a>
                         </li>
-                        <li>
+                        {{-- <li>
                             <a href="{{ route('keuangan.mutasi.index') }}" class="dropdown-item">
                                 <i class="icon feather icon-file-text"></i> Mutasi Kas
                             </a>
-                        </li>
+                        </li> --}}
                     </ul>
                 </li>
 
