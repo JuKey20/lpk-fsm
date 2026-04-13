@@ -94,6 +94,41 @@
         <div class="pcoded-content pt-1 mt-1">
             @include('components.breadcrumbs')
 
+            @php
+                $dashboardWidgets = [
+                    [
+                        'label' => 'Sensei Users',
+                        'value' => $senseiUsersCount ?? 0,
+                        'icon' => 'fa-chalkboard-teacher',
+                        'bg' => 'bg-primary',
+                    ],
+                    [
+                        'label' => 'Members',
+                        'value' => $memberCount ?? 0,
+                        'icon' => 'fa-users',
+                        'bg' => 'bg-success',
+                    ],
+                ];
+            @endphp
+
+            <div class="row">
+                @foreach ($dashboardWidgets as $widget)
+                    <div class="col-12 col-md-6">
+                        <div class="card">
+                            <div class="card-body d-flex align-items-center justify-content-between">
+                                <div>
+                                    <div class="text-muted mb-1">{{ $widget['label'] }}</div>
+                                    <h4 class="mb-0">{{ number_format($widget['value'], 0, ',', '.') }}</h4>
+                                </div>
+                                <div class="avatar {{ $widget['bg'] }} text-white">
+                                    <i class="fa {{ $widget['icon'] }}"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
             @if (in_array(Auth::user()->id_level, [1, 5, 6]))
                 <div class="row">
                     <div class="col-12 col-lg-6">
